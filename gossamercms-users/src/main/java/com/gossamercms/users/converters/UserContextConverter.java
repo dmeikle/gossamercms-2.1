@@ -14,12 +14,10 @@ public class UserContextConverter implements Converter<String, UserContextDto> {
 
     public UserContextConverter(UserContextsDbService userContextsDbService) {
         this.userContextsDbService = userContextsDbService;
-        System.out.println("***************************** UserContextConverter constructor *****************************");
     }
 
     @Override
     public UserContextDto convert(String source) {
-        System.out.println("***************************** UserContextConverter convert method called with source: " + source + " *****************************");
         UUID id = UUID.fromString(source);
 
         return userContextsDbService.getById(id);

@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gossamercms</groupId>
-    <artifactId>gossamercms-2.0</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>gossamercms-2.1</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
@@ -49,8 +49,8 @@
             </dependency>
             <dependency>
                 <groupId>com.gossamercms</groupId>
-                <artifactId>gossamercms-2.0-testing</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <artifactId>gossamercms-2.1-testing</artifactId>
+                <version>2.1.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>

@@ -20,6 +20,7 @@ public interface DataSourceAdapter {
     //Object update(String table, UUID id, Object dto);
     Map<String, Object> update(String table, UUID id, Map<String, Object> params);
 
+    void delete(String table, UUID id, ModelMeta meta);
     void delete(String table, UUID id);
     void bulkDelete(String table, Collection<UUID> ids);
 

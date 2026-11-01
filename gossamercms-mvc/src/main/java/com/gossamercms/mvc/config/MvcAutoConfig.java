@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
-@EnableModuleControllers(basePackage = "com.gossamercms.mvc.controllers")
+//@EnableModuleControllers(basePackage = "com.gossamercms.mvc.controllers")
 public class MvcAutoConfig {
 
 

@@ -181,6 +181,18 @@ public abstract class BaseDbService<
             throw new RuntimeException("Failed to set createdAt", e);
         }
 
+        // updatedAt
+        try {
+            Field updatedAt = entity.getClass().getDeclaredField("updatedAt");
+            updatedAt.setAccessible(true);
+            if (updatedAt.get(entity) == null) {
+                updatedAt.set(entity, Instant.now());
+            }
+        } catch (NoSuchFieldException ignored) {
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to set updatedAt", e);
+        }
+
         // createdBy
         try {
             Field createdByField = entity.getClass().getDeclaredField("createdBy");
@@ -407,7 +419,7 @@ public abstract class BaseDbService<
             throw404("Record not found: " + id);
         }
 
-        ds.delete(meta.table(), id);
+        ds.delete(meta.table(), id, meta);
     }
 
     public void delete(UUID deletedBy, Map<String, Object> params) {

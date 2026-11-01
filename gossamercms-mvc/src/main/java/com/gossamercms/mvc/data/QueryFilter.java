@@ -22,7 +22,21 @@ public record QueryFilter(
         NOT_IN,
         IS_NULL,
         IS_NOT_NULL,
-        EQUALS_DATE
+        EQUALS_DATE,
+        GREATER_THAN_DATE,
+        GREATER_THAN_OR_EQUAL_DATE,
+        LESS_THAN_DATE,
+        LESS_THAN_OR_EQUAL_DATE,
+        BETWEEN,
+        NOT_BETWEEN,
+        GREATER_THAN_TIMESTAMP,
+        GREATER_THAN_OR_EQUAL_TIMESTAMP,
+        LESS_THAN_TIMESTAMP,
+        LESS_THAN_OR_EQUAL_TIMESTAMP,
+        EQUALS_TIMESTAMP,
+        NOT_EQUALS,
+        NOT_EQUALS_DATE,
+        NOT_EQUALS_TIMESTAMP
     }
 
 

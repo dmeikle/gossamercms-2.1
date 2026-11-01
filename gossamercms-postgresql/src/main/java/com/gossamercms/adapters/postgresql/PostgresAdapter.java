@@ -281,12 +281,19 @@ public class PostgresAdapter implements DataSourceAdapter {
             return rows.isEmpty() ? null : rows.getFirst();
         }
 
+    @Override
+    public void delete(String table, UUID id, ModelMeta meta) {
+        if (meta != null && meta.columns().containsKey("deletedAt")) {
+            // Soft delete
+            update(table, id, Map.of("deletedAt", Instant.now()));
+        } else {
+            // Hard delete
+            jdbc.update("DELETE FROM " + quote(table) + " WHERE id = ?", id);
+        }
+    }
 
 
-
-
-
-        // ------------------------------------------------------------
+    // ------------------------------------------------------------
     // DELETE
     // ------------------------------------------------------------
     @Override
@@ -707,6 +714,56 @@ public class PostgresAdapter implements DataSourceAdapter {
                     case EQUALS_DATE ->
                         clauses.add(
                                 filter.prefix() + column + "::date = CAST(:"+parameter + " AS date)"
+                        );
+
+                    case GREATER_THAN_DATE ->
+                        clauses.add(
+                                filter.prefix() + column + "::date > CAST(:"+parameter + " AS date)"
+                        );
+                    case GREATER_THAN_OR_EQUAL_DATE ->
+                        clauses.add(
+                                filter.prefix() + column + "::date >= CAST(:"+parameter + " AS date)"
+                        );
+                    case LESS_THAN_DATE ->
+                        clauses.add(
+                                filter.prefix() + column + "::date < CAST(:"+parameter + " AS date)"
+                        );
+                    case LESS_THAN_OR_EQUAL_DATE ->
+                        clauses.add(
+                                filter.prefix() + column + "::date <= CAST(:"+parameter + " AS date)"
+                        );
+                    case BETWEEN -> {
+                        clauses.add(
+                                filter.prefix() + column + " BETWEEN CAST(:" + parameter + "Start AS date) AND CAST(:" + parameter + "End AS date)"
+                        );
+                    }
+                    case NOT_BETWEEN ->
+                        clauses.add(
+                                filter.prefix() + column + " NOT BETWEEN CAST(:" + parameter + "Start AS date) AND CAST(:" + parameter + "End AS date)"
+                        );
+                    case GREATER_THAN_TIMESTAMP ->
+                        clauses.add(
+                                filter.prefix() + column + " > CAST(:" + parameter + " AS TIMESTAMPTZ)"
+                        );
+                    case GREATER_THAN_OR_EQUAL_TIMESTAMP ->
+                        clauses.add(
+                                filter.prefix() + column + " >= CAST(:" + parameter + " AS TIMESTAMPTZ)"
+                        );
+                    case LESS_THAN_TIMESTAMP ->
+                        clauses.add(
+                                filter.prefix() + column + " < CAST(:" + parameter + " AS TIMESTAMPTZ)"
+                        );
+                    case LESS_THAN_OR_EQUAL_TIMESTAMP ->
+                        clauses.add(
+                                filter.prefix() + column + " <= CAST(:" + parameter + " AS TIMESTAMPTZ)"
+                        );
+                    case EQUALS_TIMESTAMP ->
+                        clauses.add(
+                                filter.prefix() + column + " = CAST(:" + parameter + " AS TIMESTAMPTZ)"
+                        );
+                    case NOT_EQUALS_TIMESTAMP ->
+                        clauses.add(
+                                filter.prefix() + column + " <> CAST(:" + parameter + " AS TIMESTAMPTZ)"
                         );
                 }
             }

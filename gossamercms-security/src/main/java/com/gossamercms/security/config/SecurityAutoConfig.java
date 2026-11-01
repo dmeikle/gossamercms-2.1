@@ -24,7 +24,7 @@ import java.util.List;
 @EnableConfigurationProperties(JwtProperties.class)
 @EnableModuleServices(basePackage = "com.gossamercms.security.services")
 @EnableModuleHandlers(basePackage = "com.gossamercms.security.application")
-@EnableModuleControllers(basePackage = "com.gossamercms.security.adapters.inbound")
+//@EnableModuleControllers(basePackage = "com.gossamercms.security.adapters.inbound")
 public class SecurityAutoConfig {
 
     @PostConstruct

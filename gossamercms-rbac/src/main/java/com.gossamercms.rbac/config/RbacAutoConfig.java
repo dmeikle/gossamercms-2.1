@@ -14,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @AutoConfiguration
 @ComponentScan(basePackages = {
-//        "com.gossamercms.rbac.services",
+        "com.gossamercms.rbac.services",
 //        "com.gossamercms.rbac.data",
         "com.gossamercms.rbac.auth",
 //        "com.gossamercms.rbac.entities",
@@ -23,12 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 //        "com.gossamercms.rbac"
 })
 @EnableModuleModels(basePackage = "com.gossamercms.rbac.models")
-//@EnableModuleDbServices(basePackage = "com.gossamercms.rbac.data")
 @EnableModuleHandlers(basePackage = "com.gossamercms.rbac.handlers")
-//@EnableModuleControllers(basePackage = "com.gossamercms.rbac.adapters.inbound")
-@EnableModuleServices(basePackage = "com.gossamercms.rbac.services")
-//@EnableModuleProviders(basePackage = "com.gossamercms.rbac.providers")
-//@EnableModuleConverters(basePackage = "com.gossamercms.rbac.converters")
 public class RbacAutoConfig {
 
     private static final long TTL = 60 * 60 * 1000;

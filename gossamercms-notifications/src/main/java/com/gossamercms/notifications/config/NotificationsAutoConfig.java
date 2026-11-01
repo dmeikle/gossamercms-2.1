@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 
 @AutoConfiguration
+//@EnableModuleControllers(basePackage = "com.gossamercms.notifications.controllers")
 @EnableModuleModels(basePackage = "com.gossamercms.notifications.models")
 @EnableModuleDbServices(basePackage = "com.gossamercms.notifications.data")
 @EnableModuleHandlers(basePackage = "com.gossamercms.notifications.handlers")
