@@ -38,6 +38,13 @@ public abstract class BaseHandler<
         return db.getAll(options);
     }
 
+    public <ResultDto> ListResultset<ResultDto> getAll(
+            QueryOptions options,
+            Class<ResultDto> resultDtoClass
+    ) {
+        return db.getAll(options, resultDtoClass);
+    }
+
     // ------------------------------------------------------------
     // CREATE
     // ------------------------------------------------------------

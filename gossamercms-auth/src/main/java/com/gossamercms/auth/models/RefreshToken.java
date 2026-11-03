@@ -1,6 +1,5 @@
 package com.gossamercms.auth.models;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.gossamercms.auth.dtos.RefreshTokenDto;
 import com.gossamercms.mvc.models.BaseModel;
 import com.gossamercms.mvc.models.ModelMeta;

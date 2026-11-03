@@ -20,6 +20,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.gossamercms</groupId>
             <artifactId>gossamercms-mvc</artifactId>
             <version>${project.version}</version>

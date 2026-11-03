@@ -1,6 +1,7 @@
 package com.gossamercms.users.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.gossamercms.mvc.annotations.ModuleDbService;
 import com.gossamercms.mvc.data.*;
 import com.gossamercms.users.api.UserContextDetailDto;
@@ -10,7 +11,6 @@ import com.gossamercms.users.domain.UserContext;
 import com.gossamercms.users.policies.UserDirectoryQueryPolicy;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +39,7 @@ public class UserContextsDbService extends BaseDbService<UserContext, UserContex
                 .metadata(entity.getMetadata())
                 .createdAt(entity.getCreatedAt())
                 .roleId(entity.getRoleId())
+                .isDefault(entity.isDefault())
                 .build();
     }
 
@@ -53,6 +54,7 @@ public class UserContextsDbService extends BaseDbService<UserContext, UserContex
                 .metadata(dto.getMetadata())
                 .createdAt(dto.getCreatedAt())
                 .roleId(dto.getRoleId())
+                .isDefault(dto.isDefault())
                 .build();
     }
 
@@ -145,7 +147,7 @@ public class UserContextsDbService extends BaseDbService<UserContext, UserContex
                                 .description(rs.getString("description"))
                                 .isSystem(rs.getBoolean("isSystem"))
                                 .build();
-                    } catch (IOException e) {
+                    } catch (JacksonException e) {
                         throw new SQLException("Failed to parse metadata JSON", e);
                     }
                 }

@@ -7,7 +7,9 @@ import com.gossamercms.mvc.http.ApiResponse;
 import com.gossamercms.mvc.http.ResponseBuilder;
 import com.gossamercms.users.api.*;
 import com.gossamercms.users.api.UserDirectoryDto;
+import com.gossamercms.users.api.requests.UserRequest;
 import com.gossamercms.users.api.responses.UserDetailsResponse;
+import com.gossamercms.users.api.responses.UserResponse;
 import com.gossamercms.users.api.responses.VerifyUserExistsResponse;
 import com.gossamercms.users.handlers.UserAddressesHandler;
 import com.gossamercms.users.handlers.UserContextsHandler;
@@ -24,7 +26,7 @@ import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/admin/users")
-public class AdminUsersController extends BaseController<User, UserDto> {
+public class AdminUsersController extends BaseController<User, UserDto, UserRequest, UserResponse> {
 
     private  UserTelephonesHandler telephonesHandler;
     private UserAddressesHandler userAddressesHandler;
@@ -159,6 +161,26 @@ public class AdminUsersController extends BaseController<User, UserDto> {
     public ApiResponse<VerifyUserExistsResponse> checkExists(@RequestParam("email") String email) {
         return ApiResponse.ok(((UsersHandler) handler).verifyUserExists(email));
     }
-}
 
+    @Override
+    protected UserDto toDto(UserRequest request) {
+        return UserDto.builder()
+                .firstname(request.getFirstname())
+                .lastname(request.getLastname())
+                .build();
+    }
+
+    @Override
+    protected UserResponse toResponse(UserDto dto) {
+        return UserResponse.builder()
+                .id(dto.getId())
+                .email(dto.getEmail())
+                .firstname(dto.getFirstname())
+                .lastname(dto.getLastname())
+                .status(dto.getStatus())
+                .ipAddress(dto.getIpAddress())
+                .createdOn(dto.getCreatedOn())
+                .build();
+    }
+}
 

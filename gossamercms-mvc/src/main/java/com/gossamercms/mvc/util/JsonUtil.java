@@ -1,10 +1,9 @@
 package com.gossamercms.mvc.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.core.JacksonException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +15,7 @@ public class JsonUtil {
 
     public static final ObjectMapper OBJECT_MAPPER =
             JsonMapper.builder()
-                    .addModule(new JavaTimeModule())
+                    .configureForJackson2()
                     .build();
 
     private JsonUtil() {}
@@ -34,7 +33,7 @@ public class JsonUtil {
 
         try {
             return OBJECT_MAPPER.readValue(json, type);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             e.printStackTrace();
             throw new SQLException(
                     "Unable to deserialize JSON column '" + column + "'", e);
@@ -54,7 +53,7 @@ public class JsonUtil {
 
         try {
             return OBJECT_MAPPER.readValue(json, type);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             e.printStackTrace();
             throw new SQLException(
                     "Unable to deserialize JSON column '" + column + "'", e);
@@ -77,7 +76,7 @@ public class JsonUtil {
                 json,
                 OBJECT_MAPPER.getTypeFactory()
                         .constructCollectionType(List.class, elementType));
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
         e.printStackTrace();
         throw new SQLException(
                 "Unable to deserialize JSON column '" + column + "'", e);

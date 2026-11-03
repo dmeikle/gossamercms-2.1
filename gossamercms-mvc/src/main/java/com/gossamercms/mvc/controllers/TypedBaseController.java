@@ -1,6 +1,7 @@
 package com.gossamercms.mvc.controllers;
 
 
+
 import com.gossamercms.mvc.data.DtoWithId;
 import com.gossamercms.mvc.data.ListResultset;
 import com.gossamercms.mvc.data.QueryOptions;
@@ -42,12 +43,12 @@ public abstract class TypedBaseController<
     }
 
     // ---------- GET BY FILTER ----------
-    protected ApiResponse<ResponseType> get(Map<String, Object> params) {
-        return ApiResponse.ok(toResponse(handler.get(params)));
+    protected ResponseType _get(Map<String, Object> params) {
+        return toResponse(handler.get(params));
     }
 
     // ---------- LIST / PAGINATION ----------
-    protected ApiResponse<ListResultset<ResponseType>> getAll(
+    protected ListResultset<ResponseType> _getAll(
             CurrentJwtUser jwtUser,
             int page,
             int size,
@@ -57,11 +58,25 @@ public abstract class TypedBaseController<
         params.remove("size");
 
         QueryOptions options = QueryOptions.of(page, size, params, Map.of());
-        return ApiResponse.ok(toResponseResultset(handler.getAll(options)));
+        return toResponseResultset(handler.getAll(options));
+    }
+
+    protected <ResultDto> ListResultset<ResultDto> _getAll(
+            CurrentJwtUser jwtUser,
+            int page,
+            int size,
+            Map<String, Object> params,
+            Class<ResultDto> resultDtoClass
+    ) {
+        params.remove("page");
+        params.remove("size");
+
+        QueryOptions options = QueryOptions.of(page, size, params, Map.of());
+        return handler.getAll(options, resultDtoClass);
     }
 
     // ---------- CREATE ----------
-    protected ApiResponse<ResponseType> create(
+    protected ResponseType _create(
             CurrentJwtUser jwtUser,
             RequestType request
     ) {
@@ -69,29 +84,29 @@ public abstract class TypedBaseController<
             throw new UnauthorizedStatusException();
         }
 
-        return ApiResponse.ok(toResponse(handler.create(jwtUser.getUserId(), toDto(request))));
+        return toResponse(handler.create(jwtUser.getUserId(), toDto(request)));
     }
 
     // ---------- UPDATE BY ID ----------
-    protected ApiResponse<ResponseType> updateById(
+    protected ResponseType _updateById(
             CurrentJwtUser jwtUser,
             DtoType existing,
             RequestType request
     ) {
-        return ApiResponse.ok(toResponse(handler.updateById(jwtUser.getUserId(), existing.getId(), toDto(request))));
+        return toResponse(handler.updateById(jwtUser.getUserId(), existing.getId(), toDto(request)));
     }
 
     // ---------- UPDATE BY FILTER ----------
-    protected ApiResponse<ResponseType> update(
+    protected ResponseType _update(
             CurrentJwtUser jwtUser,
             RequestType request,
             Map<String, Object> params
     ) {
-        return ApiResponse.ok(toResponse(handler.update(jwtUser.getUserId(), toDto(request), params)));
+        return toResponse(handler.update(jwtUser.getUserId(), toDto(request), params));
     }
 
     // ---------- DELETE BY ID ----------
-    protected void deleteById(
+    protected void _deleteById(
             CurrentJwtUser jwtUser,
             DtoType existing
     ) {
@@ -99,7 +114,7 @@ public abstract class TypedBaseController<
     }
 
     // ---------- DELETE BY FILTER ----------
-    protected void delete(
+    protected void _delete(
             CurrentJwtUser jwtUser,
             Map<String, Object> params
     ) {
@@ -107,22 +122,22 @@ public abstract class TypedBaseController<
     }
 
     // ---------- RESTORE ----------
-    protected ApiResponse<ResponseType> restore(
+    protected ResponseType _restore(
             CurrentJwtUser jwtUser,
             UUID id
     ) {
-        return ApiResponse.ok(toResponse(handler.restoreById(jwtUser.getUserId(), id)));
+        return toResponse(handler.restoreById(jwtUser.getUserId(), id));
     }
 
     // ---------- BULK CREATE OR REPLACE ----------
-    protected ApiResponse<ListResultset<ResponseType>> createOrReplaceBulk(
+    protected ListResultset<ResponseType> _createOrReplaceBulk(
             CurrentJwtUser jwtUser,
             List<RequestType> requests,
             Map<String, Object> deleteExistingKey
     ) {
         List<DtoType> dtos = requests.stream().map(this::toDto).toList();
-        return ApiResponse.ok(toResponseResultset(
-                handler.createOrReplaceBulk(jwtUser.getUserId(), dtos, deleteExistingKey)));
+        return toResponseResultset(
+                handler.createOrReplaceBulk(jwtUser.getUserId(), dtos, deleteExistingKey));
     }
 
     protected ListResultset<ResponseType> toResponseResultset(ListResultset<DtoType> result) {

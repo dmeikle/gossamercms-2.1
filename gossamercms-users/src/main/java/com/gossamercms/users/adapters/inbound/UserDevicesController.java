@@ -6,6 +6,8 @@ import com.gossamercms.mvc.exceptions.NotFoundException;
 import com.gossamercms.security.jwt.JwtUser;
 import com.gossamercms.users.api.UserDeviceDto;
 import com.gossamercms.users.api.requests.RegisterUserDeviceRequest;
+import com.gossamercms.users.api.requests.UserDeviceRequest;
+import com.gossamercms.users.api.responses.UserDeviceResponse;
 import com.gossamercms.users.handlers.UserDevicesHandler;
 import com.gossamercms.users.domain.UserDevice;
 import com.gossamercms.mvc.controllers.BaseController;
@@ -20,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/user-devices")
-public class UserDevicesController extends BaseController<UserDevice, UserDeviceDto> {
+public class UserDevicesController extends BaseController<UserDevice, UserDeviceDto, UserDeviceRequest, UserDeviceResponse> {
 
     private final RegisterUserDeviceService registerUserDeviceService;
 
@@ -40,5 +42,33 @@ public class UserDevicesController extends BaseController<UserDevice, UserDevice
             device = new UserDeviceDto();
         }
         registerUserDeviceService.register(jwtUser.getUserId(), device, request);
+    }
+
+    @Override
+    protected UserDeviceDto toDto(UserDeviceRequest request) {
+        return UserDeviceDto.builder()
+                .userId(request.getUserId())
+                .firebaseToken(request.getFirebaseToken())
+                .platform(request.getPlatform())
+                .deviceId(request.getDeviceId())
+                .appVersion(request.getAppVersion())
+                .active(request.getActive())
+                .build();
+    }
+
+    @Override
+    protected UserDeviceResponse toResponse(UserDeviceDto dto) {
+        return UserDeviceResponse.builder()
+                .id(dto.getId())
+                .userId(dto.getUserId())
+                .firebaseToken(dto.getFirebaseToken())
+                .platform(dto.getPlatform())
+                .deviceId(dto.getDeviceId())
+                .appVersion(dto.getAppVersion())
+                .active(dto.getActive())
+                .lastSeenAt(dto.getLastSeenAt())
+                .createdAt(dto.getCreatedAt())
+                .updatedAt(dto.getUpdatedAt())
+                .build();
     }
 }

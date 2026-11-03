@@ -81,10 +81,10 @@ class TypedBaseControllerTest {
         var expected = new TestResponse("example");
 
         assertEquals(expected, controller.getById(dto).getData());
-        assertEquals(expected, controller.get(Map.of()).getData());
-        assertEquals(expected, controller.updateById(user, dto, new TestRequest("example")).getData());
-        assertEquals(expected, controller.update(user, new TestRequest("example"), Map.of()).getData());
-        assertEquals(expected, controller.restore(user, dto.getId()).getData());
+        assertEquals(expected, controller._get(Map.of()));
+        assertEquals(expected, controller._updateById(user, dto, new TestRequest("example")));
+        assertEquals(expected, controller._update(user, new TestRequest("example"), Map.of()));
+        assertEquals(expected, controller._restore(user, dto.getId()));
     }
 
     @Test
@@ -97,24 +97,39 @@ class TypedBaseControllerTest {
         var expected = new ListResultset<>(List.of(new TestResponse("example")), 2, 10, 25, 3);
         var params = new HashMap<String, Object>(Map.of("page", 2, "size", 10));
 
-        assertEquals(expected, controller.getAll(user, 2, 10, params).getData());
+        assertEquals(expected, controller._getAll(user, 2, 10, params));
         assertTrue(params.isEmpty());
-        assertEquals(expected, controller.createOrReplaceBulk(
-                user, List.of(new TestRequest("example")), Map.of()).getData());
+        assertEquals(expected, controller._createOrReplaceBulk(
+                user, List.of(new TestRequest("example")), Map.of()));
+    }
+
+    @Test
+    void customResultDtoDelegatesWithoutResponseMapping() {
+        var result = new ListResultset<>(
+                List.of(new CustomResult(dto.getId(), "custom")), 2, 10, 25, 3);
+        var params = new HashMap<String, Object>(
+                Map.of("page", 2, "size", 10, "name", "example"));
+        var options = QueryOptions.of(2, 10, Map.of("name", "example"), Map.of());
+        when(handler.getAll(options, CustomResult.class)).thenReturn(result);
+
+        assertSame(result, controller._getAll(user, 2, 10, params, CustomResult.class));
+        assertEquals(Map.of("name", "example"), params);
+        verify(handler).getAll(options, CustomResult.class);
+        verifyNoMoreInteractions(handler);
     }
 
     @Test
     void createRejectsUnauthenticatedUserBeforeCallingHandler() {
         assertThrows(UnauthorizedStatusException.class,
-                () -> controller.create(user, new TestRequest("example")));
+                () -> controller._create(user, new TestRequest("example")));
         verifyNoInteractions(handler);
     }
 
     @Test
     void deletesDelegateToHandler() {
         when(user.getUserId()).thenReturn(userId);
-        controller.deleteById(user, dto);
-        controller.delete(user, Map.of("name", "example"));
+        controller._deleteById(user, dto);
+        controller._delete(user, Map.of("name", "example"));
         verify(handler).deleteById(userId, dto.getId());
         verify(handler).delete(userId, Map.of("name", "example"));
     }
@@ -122,6 +137,8 @@ class TypedBaseControllerTest {
     public record TestRequest(String name) {}
 
     public record TestResponse(String label) {}
+
+    record CustomResult(UUID id, String description) {}
 
     record TestDto(UUID getId, String name) implements DtoWithId {}
 
@@ -145,7 +162,7 @@ class TypedBaseControllerTest {
 
         @PostMapping
         public ApiResponse<TestResponse> createEndpoint(@RequestBody TestRequest request) {
-            return super.create(user, request);
+            return ApiResponse.ok(super._create(user, request));
         }
 
         @Override

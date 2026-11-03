@@ -1,7 +1,7 @@
 package com.gossamercms.outbox.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.gossamercms.outbox.data.OutboxDbService;
 import com.gossamercms.outbox.data.OutboxRepository;
 import com.gossamercms.outbox.eventbus.DomainEvent;
@@ -44,7 +44,7 @@ public class OutboxService {
 
             //repository.create(outbox);
             dbService.create(outbox.getCreatedBy(), outbox.toDto());
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             e.printStackTrace();
             throw new IllegalStateException(
                     "Failed to serialize event: " + event.getClass().getName(), e);

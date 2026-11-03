@@ -1,6 +1,6 @@
 package com.gossamercms.auth.adapters.auth0;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.gossamercms.auth.adapters.AuthResult;
 import com.gossamercms.auth.adapters.AuthenticationProvider;
 import org.slf4j.Logger;

@@ -330,6 +330,13 @@ public abstract class BaseDbService<
     }
 
     public ListResultset<DtoType> getAll(QueryOptions options) {
+        return getAll(options, dtoClass);
+    }
+
+    public <ResultDto> ListResultset<ResultDto> getAll(
+            QueryOptions options,
+            Class<ResultDto> resultDtoClass
+    ) {
         DataSourceAdapter ds = dsManager.get(meta.datasourceKey());
 
         Map<String, Object> filter = createFilter(options.filters());
@@ -342,8 +349,8 @@ public abstract class BaseDbService<
 
         List<Map<String, Object>> rows = (List<Map<String, Object>>) raw.list();
 
-        List<DtoType> dtos = rows.stream()
-                .map(r -> ReflectionUtils.mapRowToDto(r, dtoClass))
+        List<ResultDto> dtos = rows.stream()
+                .map(r -> ReflectionUtils.mapRowToDto(r, resultDtoClass))
                 .toList();
 
         return new ListResultset<>(

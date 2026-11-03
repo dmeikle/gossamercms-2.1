@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public abstract class BaseController<
         EntityType extends BaseModel,
-        DtoType extends DtoWithId
+        DtoType extends DtoWithId,
+        RequestType,
+        ResponseType
         > {
 
     protected final BaseHandler<EntityType, DtoType> handler;
@@ -28,22 +31,29 @@ public abstract class BaseController<
         this.handler = handler;
     }
 
+    protected abstract DtoType toDto(RequestType request);
 
+    protected abstract ResponseType toResponse(DtoType dto);
+
+    protected ListResultset<ResponseType> toResponse(ListResultset<DtoType> list) {
+        return new ListResultset<>(list.list().stream().map(this::toResponse).collect(Collectors.toList()),
+                list.page(),list.pageSize(),list.totalCount(),list.totalPages());
+    }
 
     @GetMapping("/{id}")
-    public ApiResponse<DtoType> getById(@PathVariable DtoType id) {
-        return ApiResponse.ok(id);
+    public ApiResponse<ResponseType> getById(@PathVariable DtoType id) {
+        return ApiResponse.ok(toResponse(id));
     }
 
     // ---------- GET BY FILTER ----------
     @GetMapping("/get")
-    public ApiResponse<DtoType> get(@RequestParam Map<String, Object> params) {
-        return ApiResponse.ok(handler.get(params));
+    public ApiResponse<ResponseType> get(@RequestParam Map<String, Object> params) {
+        return ApiResponse.ok(toResponse(handler.get(params)));
     }
 
     // ---------- LIST / PAGINATION ----------
     @GetMapping
-    public ApiResponse<ListResultset<DtoType>> getAll(
+    public ApiResponse<ListResultset<ResponseType>> getAll(
             @CurrentUser CurrentJwtUser jwtUser,
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "50") int size,
@@ -53,40 +63,41 @@ public abstract class BaseController<
         params.remove("size");
 
         QueryOptions options = QueryOptions.of(page, size, params, Map.of());
-        return ApiResponse.ok(handler.getAll(options));
+        return ApiResponse.ok(toResponse(handler.getAll(options)));
     }
 
     // ---------- CREATE ----------
     @PostMapping
-    public ApiResponse<DtoType> create(
+    public ApiResponse<ResponseType> create(
             @CurrentUser CurrentJwtUser jwtUser,
-            @RequestBody DtoType dto
+            @RequestBody RequestType request
     ) {
         if(!jwtUser.isAuthenticated()) {
             throw new UnauthorizedStatusException();
         }
 
-        return ApiResponse.ok(handler.create(jwtUser.getUserId(), dto));
+        DtoType dto = toDto(request);
+        return ApiResponse.ok(toResponse(handler.create(jwtUser.getUserId(), dto)));
     }
 
     // ---------- UPDATE BY ID ----------
     @PutMapping("/{id}")
-    public ApiResponse<DtoType> updateById(
+    public ApiResponse<ResponseType> updateById(
             @CurrentUser CurrentJwtUser jwtUser,
             @PathVariable("id") DtoType existing, //rely on the converter to preload it
             @RequestBody DtoType dto
     ) {
-        return ApiResponse.ok(handler.updateById(jwtUser.getUserId(), existing.getId(), dto));
+        return ApiResponse.ok(toResponse(handler.updateById(jwtUser.getUserId(), existing.getId(), dto)));
     }
 
     // ---------- UPDATE BY FILTER ----------
     @PutMapping("/update")
-    public ApiResponse<DtoType> update(
+    public ApiResponse<ResponseType> update(
             @CurrentUser CurrentJwtUser jwtUser,
             @RequestBody DtoType dto,
             @RequestParam Map<String, Object> params
     ) {
-        return ApiResponse.ok(handler.update(jwtUser.getUserId(), dto, params));
+        return ApiResponse.ok(toResponse(handler.update(jwtUser.getUserId(), dto, params)));
     }
 
     // ---------- DELETE BY ID ----------
@@ -110,21 +121,22 @@ public abstract class BaseController<
     // ---------- RESTORE ----------
     @PostMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<DtoType> restore(
+    public ApiResponse<ResponseType> restore(
             @CurrentUser CurrentJwtUser jwtUser,
             @PathVariable UUID id
     ) {
-        return ApiResponse.ok(handler.restoreById(jwtUser.getUserId(), id));
+        return ApiResponse.ok(toResponse(handler.restoreById(jwtUser.getUserId(), id)));
     }
 
     // ---------- BULK CREATE OR REPLACE ----------
     @PostMapping("/bulk")
-    public ApiResponse<ListResultset<DtoType>> createOrReplaceBulk(
+    public ApiResponse<ListResultset<ResponseType>> createOrReplaceBulk(
             @CurrentUser CurrentJwtUser jwtUser,
-            @RequestBody List<DtoType> dtos,
+            @RequestBody List<RequestType> requests,
             @RequestParam Map<String, Object> deleteExistingKey
     ) {
-        return ApiResponse.ok(handler.createOrReplaceBulk(jwtUser.getUserId(), dtos, deleteExistingKey));
+        List<DtoType> dtos = requests.stream().map(this::toDto).collect(Collectors.toList());
+        return ApiResponse.ok(toResponse(handler.createOrReplaceBulk(jwtUser.getUserId(), dtos, deleteExistingKey)));
     }
 
     protected Map<String, String> getOrderBy(Map<String, Object> params) {

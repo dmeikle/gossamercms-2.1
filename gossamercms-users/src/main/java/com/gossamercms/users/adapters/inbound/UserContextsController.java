@@ -5,6 +5,8 @@ import com.gossamercms.mvc.http.RequestContext;
 import com.gossamercms.mvc.annotations.CurrentUser;
 import com.gossamercms.security.jwt.JwtUser;
 import com.gossamercms.users.api.UserContextDto;
+import com.gossamercms.users.api.requests.UserContextRequest;
+import com.gossamercms.users.api.responses.UserContextResponse;
 import com.gossamercms.users.domain.UserContext;
 import com.gossamercms.users.handlers.UserContextsHandler;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/auth/contexts")
-public class UserContextsController  extends BaseController<UserContext, UserContextDto> {
+public class UserContextsController extends BaseController<UserContext, UserContextDto, UserContextRequest, UserContextResponse> {
 
 
     public UserContextsController(UserContextsHandler handler) {
@@ -61,5 +63,28 @@ public class UserContextsController  extends BaseController<UserContext, UserCon
     public Object whoAmI(@CurrentUser JwtUser user) {
         return user;
     }
-}
 
+    @Override
+    protected UserContextDto toDto(UserContextRequest request) {
+        return UserContextDto.builder()
+                .userId(request.getUserId())
+                .roleId(request.getRoleId())
+                .contextType(request.getContextType())
+                .metadata(request.getMetadata())
+                .isDefault(request.isDefault())
+                .build();
+    }
+
+    @Override
+    protected UserContextResponse toResponse(UserContextDto dto) {
+        return UserContextResponse.builder()
+                .id(dto.getId())
+                .userId(dto.getUserId())
+                .roleId(dto.getRoleId())
+                .contextType(dto.getContextType())
+                .metadata(dto.getMetadata())
+                .createdAt(dto.getCreatedAt())
+                .isDefault(dto.isDefault())
+                .build();
+    }
+}

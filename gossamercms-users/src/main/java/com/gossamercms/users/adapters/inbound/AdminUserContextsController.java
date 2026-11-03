@@ -4,6 +4,8 @@ import com.gossamercms.mvc.controllers.BaseController;
 import com.gossamercms.mvc.http.RequestContext;
 import com.gossamercms.users.api.UserContextDto;
 import com.gossamercms.users.api.UserDto;
+import com.gossamercms.users.api.requests.UserContextRequest;
+import com.gossamercms.users.api.responses.UserContextResponse;
 import com.gossamercms.users.domain.UserContext;
 import com.gossamercms.users.handlers.UserContextsHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/auth/contexts")
-public class AdminUserContextsController extends BaseController<UserContext, UserContextDto> {
+public class AdminUserContextsController extends BaseController<UserContext, UserContextDto, UserContextRequest, UserContextResponse> {
 
     public AdminUserContextsController(UserContextsHandler handler) {
         super(handler);
@@ -27,6 +29,30 @@ public class AdminUserContextsController extends BaseController<UserContext, Use
         System.out.println("UserContextsAdminController.listByUserId: " + user.getId());
         RequestContext ctx = new RequestContext(user.getId(), Map.of());
         return  ((UserContextsHandler) handler).listAvailableContexts(ctx);
+    }
+
+    @Override
+    protected UserContextDto toDto(UserContextRequest request) {
+        return UserContextDto.builder()
+                .userId(request.getUserId())
+                .roleId(request.getRoleId())
+                .contextType(request.getContextType())
+                .metadata(request.getMetadata())
+                .isDefault(request.isDefault())
+                .build();
+    }
+
+    @Override
+    protected UserContextResponse toResponse(UserContextDto dto) {
+        return UserContextResponse.builder()
+                .id(dto.getId())
+                .userId(dto.getUserId())
+                .roleId(dto.getRoleId())
+                .contextType(dto.getContextType())
+                .metadata(dto.getMetadata())
+                .createdAt(dto.getCreatedAt())
+                .isDefault(dto.isDefault())
+                .build();
     }
 //    @GetMapping("/users1/userId")
 //    public Object listByUserId(UUID userId) {

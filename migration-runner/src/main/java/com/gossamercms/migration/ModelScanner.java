@@ -1,45 +1,43 @@
 package com.gossamercms.migration;
 
 import com.gossamercms.mvc.models.BaseModel;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ConfigurationBuilder;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class ModelScanner {
 
-    public static List<Class<? extends BaseModel>> findAllModels(Path inputPath) {
-
-        List<URL> moduleUrls = ModuleDirectoryScanner.findModuleClassUrls(inputPath);
-
-        System.out.println("Building Reflections scanner with URLs:");
-        moduleUrls.forEach(url -> System.out.println("  → " + url));
-
-        Reflections reflections = new Reflections(
-                new ConfigurationBuilder()
-                        .setUrls(moduleUrls)
-                        .setScanners(new SubTypesScanner(false))
-        );
-
-        System.out.println("Scanning for BaseModel subclasses...");
-
-        Set<Class<? extends BaseModel>> found = reflections.getSubTypesOf(BaseModel.class);
-
-        System.out.println("Raw scan results:");
-        found.forEach(c -> System.out.println("  → " + c.getName()));
-
-        List<Class<? extends BaseModel>> models = found.stream()
-                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
-                .toList();
-
-        System.out.println("Filtered (non-abstract) models:");
-        models.forEach(c -> System.out.println("  ✔ " + c.getName()));
-
+    public static List<Class<? extends BaseModel>> findAllModels(Path root)
+            throws IOException, ClassNotFoundException {
+        List<Class<? extends BaseModel>> models = new ArrayList<>();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        try (var modules = Files.list(root)) {
+            for (Path module : modules.filter(Files::isDirectory).sorted().toList()) {
+                Path classes = module.resolve("target/classes");
+                if (!Files.isDirectory(classes)) {
+                    continue;
+                }
+                try (var files = Files.walk(classes)) {
+                    for (Path file : files.filter(p -> p.toString().endsWith(".class")).sorted().toList()) {
+                        String name = classes.relativize(file).toString()
+                                .replace(java.io.File.separatorChar, '.');
+                        name = name.substring(0, name.length() - ".class".length());
+                        if (!name.startsWith("com.gossamercms.") || name.contains("$")) {
+                            continue;
+                        }
+                        Class<?> type = Class.forName(name, false, loader);
+                        if (BaseModel.class.isAssignableFrom(type)
+                                && !type.isInterface() && !Modifier.isAbstract(type.getModifiers())) {
+                            models.add(type.asSubclass(BaseModel.class));
+                        }
+                    }
+                }
+            }
+        }
         return models;
     }
 }
