@@ -1,5 +1,7 @@
 package com.gossamercms.users.api;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.gossamercms.mvc.data.DtoWithId;
 import lombok.*;
 
@@ -20,5 +22,6 @@ public class UserContextDto implements DtoWithId {
     private String contextType;
     private Map<String, Object> metadata;
     private Instant createdAt;
+    @JsonSetter(nulls = Nulls.SKIP)
     private boolean isDefault;
 }

@@ -13,12 +13,12 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/admin/rbac/roles")
-public class AdminRolePermissionsController extends BaseController<RolePermission, RolePermissionDto, RolePermissionRequest, RolePermissionResponse> {
+public class AdminRolePermissionsController extends BaseController<RolePermission, RolePermissionDto, RolePermissionRequest, RolePermissionResponse, RolePermissionResponse> {
 
     private final RolePermissionsHandler handler;
 
     public AdminRolePermissionsController(RolePermissionsHandler handler) {
-        super(handler);
+        super(handler, RolePermissionResponse.class);
         this.handler = handler;
     }
 

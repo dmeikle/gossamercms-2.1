@@ -22,13 +22,19 @@ public abstract class BaseController<
         EntityType extends BaseModel,
         DtoType extends DtoWithId,
         RequestType,
-        ResponseType
+        ResponseType,
+        ResponseListType
         > {
 
     protected final BaseHandler<EntityType, DtoType> handler;
+    private final Class<ResponseListType> responseListClass;
 
-    protected BaseController(BaseHandler<EntityType, DtoType> handler) {
+    protected BaseController(
+            BaseHandler<EntityType, DtoType> handler,
+            Class<ResponseListType> responseListClass
+    ) {
         this.handler = handler;
+        this.responseListClass = responseListClass;
     }
 
     protected abstract DtoType toDto(RequestType request);
@@ -53,7 +59,7 @@ public abstract class BaseController<
 
     // ---------- LIST / PAGINATION ----------
     @GetMapping
-    public ApiResponse<ListResultset<ResponseType>> getAll(
+    public ApiResponse<ListResultset<ResponseListType>> getAll(
             @CurrentUser CurrentJwtUser jwtUser,
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "50") int size,
@@ -63,7 +69,7 @@ public abstract class BaseController<
         params.remove("size");
 
         QueryOptions options = QueryOptions.of(page, size, params, Map.of());
-        return ApiResponse.ok(toResponse(handler.getAll(options)));
+        return ApiResponse.ok(handler.getAll(options, responseListClass));
     }
 
     // ---------- CREATE ----------

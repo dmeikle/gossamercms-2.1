@@ -41,32 +41,12 @@ public class RegisterHandler {
     private final AuthenticationProvider authProvider;
     private final RoleClaimsFactory roleClaimsFactory;
     private final UserRolesDbService userRolesDbService;
+    private final EmailsDbService emailsDbService;
 
     private final String DEFAULT_TYPE = "default";
     private static final Logger log = LoggerFactory.getLogger(RegisterHandler.class);
 
-//    public RegisterHandler(
-//            UsersDbService usersDb,
-//            LoginIdentityDbService identityDb,
-//            UserAddressDbService addressDb,
-//            UserTelephonesDbService telephonesDb,
-//            UserContextsDbService contextsDb,
-//            AccountMappingsDbService accountMappingsDbService,
-//            RolesDbService rolesDbService,
-//            RoleClaimsFactory roleClaimsFactory,
-//            JwtService jwtService,
-//            AuthenticationProvider authProvider
-//    ) {
-//        this.usersDb = usersDb;
-//        this.identityDb = identityDb;
-//        this.addressDb = addressDb;
-//        this.telephonesDb = telephonesDb;
-//        this.contextsDb = contextsDb;
-//        this.accountMappingsDbService = accountMappingsDbService;
-//        this.roleClaimsFactory = roleClaimsFactory;
-//        this.jwtService = jwtService;
-//        this.authProvider = authProvider;
-//    }
+
 
     public RegisterResponseDto handle(AdminRegisterRequestDto req, RoleDto role) throws LoginAlreadyExistsException {
 
@@ -95,7 +75,7 @@ public class RegisterHandler {
                 .firstname(req.getFirstname())
                 .lastname(req.getLastname())
                 .status("ACTIVE")
-                .createdOn(null)
+                .createdAt(null)
                 .build();
 
 
@@ -122,6 +102,40 @@ public class RegisterHandler {
                 identity.toDto()
         );
 
+        //4. Generate UserContext
+        UserContextDto requestedUserContext = req.getUserContext() != null
+                ? req.getUserContext()
+                : UserContextDto.builder().contextType(DEFAULT_TYPE).build();
+        String contextType = requestedUserContext.getContextType() == null || requestedUserContext.getContextType().isBlank()
+                ? DEFAULT_TYPE
+                : requestedUserContext.getContextType();
+        Map<String, Object> metadata = new HashMap<>(UserContextDefaults.forType(contextType));
+        if (requestedUserContext.getMetadata() != null) {
+            metadata.putAll(requestedUserContext.getMetadata());
+        }
+
+        UserContextDto userContext = contextsDb.create(savedUser.getId(),
+                UserContext.builder()
+                        .userId(savedUser.getId())
+                        .createdAt(null)
+                        .roleId(role.getId())
+                        .metadata(metadata)
+                        .contextType(contextType)
+                        .isDefault((true)) //it is assumed
+                        .build().toDto()
+        );
+
+
+
+        // 4. Save Email record
+        EmailDto email = emailsDbService.create(savedUser.getId(),
+                EmailDto.builder()
+                        .userContextId(userContext.getId())
+                        .email(req.getEmail())
+                        .status("ACTIVE")
+                        .primary(true)
+                        .build()
+        );
         // 4. Create addresses
         List<AddressDto> savedAddresses = new ArrayList<>();
         if (req.getAddresses() != null) {
@@ -159,7 +173,7 @@ public class RegisterHandler {
                         .smsOptIn(t.isSmsOptIn())
                         .preferred(t.isPreferred())
                         .extension(t.getExtension())
-                        .createdOn(null)
+                        .createdAt(null)
                         .build();
 
                 UserTelephoneDto saved = telephonesDb.create(savedUser.getId(), tel.toDto());
@@ -167,28 +181,6 @@ public class RegisterHandler {
             }
         }
 
-        //7. Generate UserContext
-        UserContextDto requestedUserContext = req.getUserContext() != null
-                ? req.getUserContext()
-                : UserContextDto.builder().contextType(DEFAULT_TYPE).build();
-        String contextType = requestedUserContext.getContextType() == null || requestedUserContext.getContextType().isBlank()
-                ? DEFAULT_TYPE
-                : requestedUserContext.getContextType();
-        Map<String, Object> metadata = new HashMap<>(UserContextDefaults.forType(contextType));
-        if (requestedUserContext.getMetadata() != null) {
-            metadata.putAll(requestedUserContext.getMetadata());
-        }
-
-        UserContextDto userContext = contextsDb.create(savedUser.getId(),
-                UserContext.builder()
-                .userId(savedUser.getId())
-                .createdAt(null)
-                .roleId(role.getId())
-                .metadata(metadata)
-                .contextType(contextType)
-                .isDefault((true)) //it is assumed
-                .build().toDto()
-                        );
 
 
         String [] permissionNames = roleClaimsFactory.getPermissionsByUserContext(userContext.getId());
@@ -236,6 +228,10 @@ public class RegisterHandler {
                 userContext,
                 token
         );
+    }
+
+    private boolean checkEmailExists(String email) {
+        return identityDb.get(Map.of("identifier", email)) != null;
     }
 
     public void deleteAccount(UUID deletedBy, UUID userId) {

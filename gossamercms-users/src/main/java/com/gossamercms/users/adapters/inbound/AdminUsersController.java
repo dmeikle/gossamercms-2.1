@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/admin/users")
-public class AdminUsersController extends BaseController<User, UserDto, UserRequest, UserResponse> {
+public class AdminUsersController extends BaseController<User, UserDto, UserRequest, UserResponse, UserResponse> {
 
     private  UserTelephonesHandler telephonesHandler;
     private UserAddressesHandler userAddressesHandler;
@@ -36,7 +36,7 @@ public class AdminUsersController extends BaseController<User, UserDto, UserRequ
                                 UserTelephonesHandler telephonesHandler,
                                 UserAddressesHandler userAddressesHandler,
                                 UserContextsHandler userContextsHandler) {
-        super(handler);
+        super(handler, UserResponse.class);
         this.telephonesHandler = telephonesHandler;
         this.userAddressesHandler = userAddressesHandler;
         this.userContextsHandler = userContextsHandler;
@@ -179,8 +179,7 @@ public class AdminUsersController extends BaseController<User, UserDto, UserRequ
                 .lastname(dto.getLastname())
                 .status(dto.getStatus())
                 .ipAddress(dto.getIpAddress())
-                .createdOn(dto.getCreatedOn())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 }
-

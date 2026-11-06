@@ -1,0 +1,6 @@
+CREATE TABLE reminder_types (
+    "id" UUID PRIMARY KEY,
+    "name" VARCHAR(45),
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

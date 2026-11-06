@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/notification_jobs")
-public class NotificationJobsController extends BaseController<NotificationJob, NotificationJobDto, NotificationRequest, NotificationResponse> {
+public class NotificationJobsController extends BaseController<NotificationJob, NotificationJobDto, NotificationRequest, NotificationResponse, NotificationResponse> {
 
     public NotificationJobsController(NotificationJobsHandler handler) {
-        super(handler);
+        super(handler, NotificationResponse.class);
     }
 
     @Override

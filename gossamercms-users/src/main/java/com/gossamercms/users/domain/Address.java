@@ -1,5 +1,7 @@
 package com.gossamercms.users.domain;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.gossamercms.mvc.annotations.ModuleModel;
 import com.gossamercms.mvc.models.BaseModel;
 import com.gossamercms.mvc.models.ModelMeta;
@@ -35,9 +37,10 @@ public class Address implements BaseModel {
 
     //private Instant createdAt;
 
+    @JsonSetter(nulls = Nulls.SKIP)
     private boolean isDefault;
 
-
+    @JsonSetter(nulls = Nulls.SKIP)
     private boolean isBilling;
 
     public static final ModelMeta META = ModelMeta.builder()

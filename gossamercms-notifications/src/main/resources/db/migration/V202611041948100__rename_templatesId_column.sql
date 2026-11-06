@@ -1,0 +1,1 @@
+ALTER TABLE template_messages RENAME COLUMN "templatesId" TO "templateId";

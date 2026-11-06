@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rbac/user-roles")
-public class UserRolesController extends BaseController<UserRole, UserRoleDto, UserRoleRequest, UserRoleResponse> {
+public class UserRolesController extends BaseController<UserRole, UserRoleDto, UserRoleRequest, UserRoleResponse, UserRoleResponse> {
 
     public UserRolesController(UserRolesHandler handler) {
-        super(handler);
+        super(handler, UserRoleResponse.class);
     }
 
     @Override

@@ -18,7 +18,7 @@ public final class UserDirectoryQueryPolicy {
             "firstname", "u.firstname",
             "lastName", "u.lastname",
             "lastname", "u.lastname",
-            "createdOn", "u.\"createdOn\"",
+            "createdAt", "u.\"createdAt\"",
             "email", "email",
             "lastLoginAt", "li.\"lastLoginAt\"",
             "contextType", "uc.\"contextType\"",

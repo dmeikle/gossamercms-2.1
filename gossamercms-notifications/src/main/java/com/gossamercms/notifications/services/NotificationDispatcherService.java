@@ -6,7 +6,7 @@ import com.gossamercms.mvc.annotations.ModuleService;
 import com.gossamercms.mvc.data.QueryOptions;
 import com.gossamercms.notifications.data.NotificationJobsDbService;
 import com.gossamercms.notifications.dtos.NotificationJobDto;
-import com.gossamercms.notifications.models.NotificationJobStatus;
+import com.gossamercms.notifications.enums.NotificationJobStatus;
 import com.gossamercms.users.api.UserDeviceDto;
 import com.gossamercms.users.data.UserDevicesDbService;
 import gossamercms.globals.config.SystemPrincipal;
@@ -74,7 +74,7 @@ public class NotificationDispatcherService {
     private List<NotificationJobDto> claimDueJobs(int limit) {
         // Implement atomic claim transaction.
         return notificationJobsDbService.getAll(QueryOptions.builder()
-                .filters(Map.of("status", NotificationJobStatus.PENDING))
+                .filters(Map.of("status", NotificationJobStatus.PENDING.toString()))
                 .size(limit).build()).list();
     }
 
@@ -88,7 +88,7 @@ public class NotificationDispatcherService {
     private void markJobComplete(NotificationJobDto job) {
        notificationJobsDbService.update(SystemPrincipal.ID,
                NotificationJobDto.builder()
-                       .status(NotificationJobStatus.SENT).build(),
+                       .status(NotificationJobStatus.SENT.toString()).build(),
                                Map.of("id", job.getId())
                        );
     }

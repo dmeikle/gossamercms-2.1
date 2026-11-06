@@ -22,7 +22,7 @@ public class UserDto implements DtoWithId {
     private String lastname;
     private String status;
     private String ipAddress;
-    private Instant createdOn;
+    private Instant createdAt;
 
     @Override
     public UUID getId() {

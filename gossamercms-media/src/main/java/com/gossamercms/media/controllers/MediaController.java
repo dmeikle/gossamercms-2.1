@@ -1,6 +1,7 @@
 package com.gossamercms.media.controllers;
 
 import com.gossamercms.media.dtos.MediaDto;
+import com.gossamercms.media.dtos.StorageObject;
 import com.gossamercms.media.handlers.MediaHandler;
 import com.gossamercms.media.providers.MediaStorageProvider;
 import org.springframework.core.io.InputStreamResource;
@@ -32,11 +33,11 @@ public class MediaController {
             @PathVariable UUID id
     ) {
         MediaDto media = mediaHandler.getById(id);
-        InputStream stream =
-                storageProvider.load(media.getStorageKey());
 
-        InputStreamResource resource =
-                new InputStreamResource(stream);
+
+        StorageObject storageObject = storageProvider.load(media.getStorageKey());
+        InputStreamResource resource = new InputStreamResource(storageObject.getInputStream());
+
 
         return ResponseEntity.ok()
                 .contentType(

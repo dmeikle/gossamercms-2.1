@@ -4,7 +4,7 @@ import com.gossamercms.mvc.annotations.ModuleService;
 import com.gossamercms.mvc.data.QueryOptions;
 import com.gossamercms.notifications.data.NotificationJobsDbService;
 import com.gossamercms.notifications.dtos.NotificationJobDto;
-import com.gossamercms.notifications.models.NotificationJobStatus;
+import com.gossamercms.notifications.enums.NotificationJobStatus;
 import gossamercms.globals.config.SystemPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class NotificationClaimService {
         Instant now = Instant.now();
 
         for (NotificationJobDto job : jobs) {
-            job.setStatus(NotificationJobStatus.PROCESSING);
+            job.setStatus(NotificationJobStatus.PROCESSING.toString());
             job.setClaimedAt(now);
         }
 

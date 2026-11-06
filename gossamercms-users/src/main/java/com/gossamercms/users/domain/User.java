@@ -22,7 +22,7 @@ public class User implements BaseModel {
     private String lastname;
     private String status;
     private String ipAddress;
-    private Instant createdOn;
+    private Instant createdAt;
 
     public static final ModelMeta META = ModelMeta.builder()
             .table("users")
@@ -32,8 +32,8 @@ public class User implements BaseModel {
             .column("lastname", String.class, 50)
             .column("status", String.class, 20)
             .column("ipAddress", String.class, 15)
-            .column("createdOn", Instant.class)
-            .defaultSort("createdOn DESC")
+            .column("createdAt", Instant.class)
+            .defaultSort("createdAt DESC")
             .build();
 
     @Override
@@ -47,7 +47,7 @@ public class User implements BaseModel {
                 .firstname(firstname)
                 .lastname(lastname)
                 .status("ACTIVE")
-                .createdOn(Instant.now())
+                .createdAt(Instant.now())
                 .build();
     }
 
@@ -59,7 +59,7 @@ public class User implements BaseModel {
                 .lastname(lastname)
                 .status(status)
                 .ipAddress(ipAddress)
-                .createdOn(createdOn)
+                .createdAt(createdAt)
                 .build();
     }
 

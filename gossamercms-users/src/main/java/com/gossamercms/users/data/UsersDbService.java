@@ -31,7 +31,7 @@ public class UsersDbService extends BaseDbService<User, UserDto> {
                 .lastname(entity.getLastname())
                 .status(entity.getStatus())
                 .ipAddress(entity.getIpAddress())
-                .createdOn(entity.getCreatedOn())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class UsersDbService extends BaseDbService<User, UserDto> {
                 .lastname(dto.getLastname())
                 .status(dto.getStatus())
                 .ipAddress(dto.getIpAddress())
-                .createdOn(dto.getCreatedOn())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 
@@ -77,7 +77,7 @@ public class UsersDbService extends BaseDbService<User, UserDto> {
                 u.id,
                 u.firstname,
                 u.lastname,
-                u."createdOn",
+                u."createdAt",
                 uc."contextType",
                 li."lastLoginAt",
                 li.identifier as email,
@@ -128,7 +128,7 @@ public class UsersDbService extends BaseDbService<User, UserDto> {
         inner join user_telephone ut
             on ut."userId" = u.id
         """;
-System.out.println("Executing directory query with SQL: " + sql);
+
         Map<String, Object> params = Map.of(
                 "contextType",
                 options.filters().getOrDefault("contextType", "default")
@@ -148,8 +148,8 @@ System.out.println("Executing directory query with SQL: " + sql);
                         .id(rs.getObject("id", UUID.class))
                         .firstname(rs.getString("firstname"))
                         .lastname(rs.getString("lastname"))
-                        .createdOn( rs.getTimestamp("createdOn") != null
-                                ? rs.getTimestamp("createdOn").toInstant()
+                        .createdAt( rs.getTimestamp("createdAt") != null
+                                ? rs.getTimestamp("createdAt").toInstant()
                                 : null)
                         .email(rs.getString("email"))
                         .contextType(rs.getString("contextType"))

@@ -30,11 +30,11 @@ public class EmailsDbService extends BaseDbService<Email, EmailDto> {
 
         return Email.builder()
                 .id(dto.getId() != null ? dto.getId() : UUID.randomUUID())
-                .userId(dto.getUserId())
+                .userContextId(dto.getUserContextId())
                 .email(dto.getEmail())
                 .primary(dto.isPrimary())
                 .status(dto.getStatus())
-                .createdOn(dto.getCreatedOn())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 
@@ -44,11 +44,11 @@ public class EmailsDbService extends BaseDbService<Email, EmailDto> {
 
         return EmailDto.builder()
                 .id(entity.getId())
-                .userId(entity.getUserId())
+                .userContextId(entity.getUserContextId())
                 .email(entity.getEmail())
                 .primary(entity.isPrimary())
                 .status(entity.getStatus())
-                .createdOn(entity.getCreatedOn())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 

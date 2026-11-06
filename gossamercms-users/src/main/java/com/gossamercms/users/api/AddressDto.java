@@ -1,5 +1,8 @@
 package com.gossamercms.users.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.gossamercms.mvc.data.DtoWithId;
 import com.gossamercms.users.domain.Address;
 import lombok.AllArgsConstructor;
@@ -36,9 +39,12 @@ public class AddressDto implements DtoWithId {
 
    // private Instant createdAt;
 
-    private boolean isDefault;
+    @JsonProperty("isDefault")
+    @JsonSetter(nulls = Nulls.SKIP)
+    private boolean isDefault = false;
 
-    private boolean isBilling;
+    @JsonSetter(nulls = Nulls.SKIP)
+    private boolean isBilling = false;
 
 
     public Address toEntity() {
@@ -52,7 +58,6 @@ public class AddressDto implements DtoWithId {
                 .stateProvince(stateProvince)
                 .postalCode(postalCode)
                 .countryCode(countryCode)
-                //   .createdAt(createdAt)
                 .isDefault(isDefault)
                 .isBilling(isBilling)
                 .build();

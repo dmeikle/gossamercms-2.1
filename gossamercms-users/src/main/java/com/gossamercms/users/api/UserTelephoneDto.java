@@ -1,5 +1,7 @@
 package com.gossamercms.users.api;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.gossamercms.mvc.data.DtoWithId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +21,12 @@ public class UserTelephoneDto implements DtoWithId {
     private String countryCode;
     private String numberRaw;
     private String type;
+    @JsonSetter(nulls = Nulls.SKIP)
     private boolean verified;
+    @JsonSetter(nulls = Nulls.SKIP)
     private boolean smsOptIn;
+    @JsonSetter(nulls = Nulls.SKIP)
     private boolean preferred;
     private String extension;
-    private Instant createdOn;
+    private Instant createdAt;
 }

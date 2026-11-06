@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rbac/role-permissions")
-public class RolePermissionsController extends BaseController<RolePermission, RolePermissionDto, RolePermissionRequest, RolePermissionResponse> {
+public class RolePermissionsController extends BaseController<RolePermission, RolePermissionDto, RolePermissionRequest, RolePermissionResponse, RolePermissionResponse> {
 
     public RolePermissionsController(RolePermissionsHandler handler) {
-        super(handler);
+        super(handler, RolePermissionResponse.class);
     }
 
     @Override

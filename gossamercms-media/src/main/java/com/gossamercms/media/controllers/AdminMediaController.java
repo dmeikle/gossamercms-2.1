@@ -21,12 +21,12 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/admin/media")
-public class AdminMediaController extends BaseController<Media, MediaDto, MediaRequest, MediaResponse> {
+public class AdminMediaController extends BaseController<Media, MediaDto, MediaRequest, MediaResponse, MediaResponse> {
     protected final MediaService mediaService;
 
     public AdminMediaController(MediaHandler handler,
                                 MediaService mediaService) {
-        super(handler);
+        super(handler, MediaResponse.class);
         this.mediaService = mediaService;
     }
 

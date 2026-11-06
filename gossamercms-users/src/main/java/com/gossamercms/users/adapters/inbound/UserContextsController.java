@@ -21,11 +21,11 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/auth/contexts")
-public class UserContextsController extends BaseController<UserContext, UserContextDto, UserContextRequest, UserContextResponse> {
+public class UserContextsController extends BaseController<UserContext, UserContextDto, UserContextRequest, UserContextResponse, UserContextResponse> {
 
 
     public UserContextsController(UserContextsHandler handler) {
-        super(handler);
+        super(handler, UserContextResponse.class);
     }
 
     /**

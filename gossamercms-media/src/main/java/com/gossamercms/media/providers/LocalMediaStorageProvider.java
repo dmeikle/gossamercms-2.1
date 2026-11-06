@@ -1,6 +1,9 @@
 package com.gossamercms.media.providers;
 
 
+import com.gossamercms.media.dtos.StorageObject;
+import com.gossamercms.media.exceptions.LoadStoredFileException;
+import com.gossamercms.media.exceptions.StoredFileNotFoundException;
 import com.gossamercms.media.storage.StorageResult;
 import com.gossamercms.mvc.annotations.ModuleProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,11 +23,17 @@ public class LocalMediaStorageProvider implements MediaStorageProvider {
             @Value("${media.storage.path}") String storagePath
     ) {
         System.out.println("Initialize LocalMediaStorageProvider *******************************");
-        this.rootDirectory = Paths.get(storagePath);
+        this.rootDirectory = Paths.get(storagePath)
+                .toAbsolutePath()
+                .normalize();
     }
 
     @Override
     public StorageResult store(UUID mediaId, MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File cannot be empty");
+        }
 
         try {
             Files.createDirectories(rootDirectory);
@@ -35,36 +44,71 @@ public class LocalMediaStorageProvider implements MediaStorageProvider {
                     ? mediaId.toString()
                     : mediaId + "." + extension;
 
-            Path destination = rootDirectory.resolve(storageKey);
+            Path destination = rootDirectory
+                    .resolve(storageKey)
+                    .normalize();
 
-            Files.copy(
-                    file.getInputStream(),
-                    destination,
-                    StandardCopyOption.REPLACE_EXISTING
-            );
+            if (!destination.startsWith(rootDirectory)) {
+                throw new IllegalArgumentException("Invalid storage key");
+            }
+
+            try (InputStream inputStream = file.getInputStream()) {
+                Files.copy(
+                        inputStream,
+                        destination,
+                        StandardCopyOption.REPLACE_EXISTING
+                );
+            }
 
             return StorageResult.builder()
                     .storageProvider("local")
                     .storageKey(storageKey)
                     .url("/media/" + storageKey)
-                    .sizeBytes(file.getSize())
+                    .sizeBytes(Files.size(destination))
                     .mimeType(file.getContentType())
                     .build();
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store media", e);
+            throw new LoadStoredFileException(mediaId.toString());
         }
     }
 
-    @Override
-    public InputStream load(String storageKey) {
-
+//    @Override
+//    public InputStream load(String storageKey) {
+//
+//        try {
+//            return Files.newInputStream(
+//                    rootDirectory.resolve(storageKey)
+//            );
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to load media", e);
+//        }
+//    }
+@Override
+    public StorageObject load(String storageKey) {
         try {
-            return Files.newInputStream(
-                    rootDirectory.resolve(storageKey)
+            Path file = rootDirectory.resolve(storageKey).normalize();
+System.out.println("Loading file: " + file.toString());
+            if (!file.startsWith(rootDirectory)) {
+                throw new IllegalArgumentException(
+                        "Invalid storage key: " + storageKey
+                );
+            }
+
+            if (!Files.isRegularFile(file)) {
+                throw new StoredFileNotFoundException(storageKey);
+            }
+
+            InputStream inputStream = Files.newInputStream(file);
+
+            return new StorageObject(
+                    storageKey,
+                    inputStream,
+                    Files.size(file)
             );
+
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load media", e);
+            throw new LoadStoredFileException(storageKey);
         }
     }
 
@@ -72,12 +116,24 @@ public class LocalMediaStorageProvider implements MediaStorageProvider {
     public void delete(String storageKey) {
 
         try {
-            Files.deleteIfExists(
-                    rootDirectory.resolve(storageKey)
-            );
+            Path file = rootDirectory.resolve(storageKey).normalize();
+
+            if (!file.startsWith(rootDirectory)) {
+                throw new IllegalArgumentException(
+                        "Invalid storage key: " + storageKey
+                );
+            }
+
+            Files.deleteIfExists(file);
+
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete media", e);
+            throw new LoadStoredFileException(storageKey);
         }
+    }
+
+    @Override
+    public boolean exists(String storageKey) {
+        return false;
     }
 
     private String getExtension(String filename) {

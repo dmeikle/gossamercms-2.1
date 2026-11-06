@@ -27,6 +27,7 @@
         <module>gossamercms-utilities</module>
         <module>gossamercms-notifications</module>
         <module>gossamercms-firebase</module>
+        <module>gossamercms-emails</module>
     </modules>
 
     <properties>

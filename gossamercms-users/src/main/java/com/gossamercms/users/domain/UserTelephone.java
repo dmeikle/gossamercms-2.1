@@ -32,7 +32,7 @@ public class UserTelephone implements BaseModel {
     private boolean preferred;
 
     private String extension;     // optional
-    private Instant createdOn;
+    private Instant createdAt;
 
     // ⭐ Required static metadata
     public static final ModelMeta META = ModelMeta.builder()
@@ -48,8 +48,8 @@ public class UserTelephone implements BaseModel {
             .column("smsOptIn", Boolean.class)
             .column("preferred", Boolean.class)
             .column("extension", String.class, 10)
-            .column("createdOn", Instant.class)
-            .defaultSort("createdOn DESC")
+            .column("createdAt", Instant.class)
+            .defaultSort("createdAt DESC")
             .build();
 
 
@@ -79,7 +79,7 @@ public class UserTelephone implements BaseModel {
                 .smsOptIn(smsOptIn)
                 .preferred(preferred)
                 .extension(extension)
-                .createdOn(Instant.now())
+                .createdAt(Instant.now())
                 .build();
     }
 
@@ -95,7 +95,7 @@ public class UserTelephone implements BaseModel {
                 .smsOptIn(smsOptIn)
                 .preferred(preferred)
                 .extension(extension)
-                .createdOn(createdOn)
+                .createdAt(createdAt)
                 .build();
     }
 

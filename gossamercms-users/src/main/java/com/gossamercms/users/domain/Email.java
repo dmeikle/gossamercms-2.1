@@ -7,6 +7,7 @@ import com.gossamercms.users.api.EmailDto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @ModuleModel
@@ -15,22 +16,22 @@ import java.util.UUID;
 public class Email implements BaseModel {
 
     private UUID id;
-    private UUID userId;
+    private UUID userContextId;
     private String email;
     private boolean primary;
     private String status;
-    private String createdOn;
+    private Instant createdAt;
 
     public static final ModelMeta META = ModelMeta.builder()
             .table("emails")
             .datasource("postgres")
             .column("id", UUID.class)                // primary key
-            .column("user_id", UUID.class)
+            .column("userContextId", UUID.class)
             .column("email", String.class)
             .column("primary", Boolean.class)
             .column("status", String.class)
-            .column("created_on", String.class)
-            .defaultSort("created_on DESC")
+            .column("createdAt", Instant.class)
+            .defaultSort("email DESC")
             .build();
 
     @Override
@@ -41,22 +42,22 @@ public class Email implements BaseModel {
     public EmailDto toDto() {
         return EmailDto.builder()
                 .id(id)
-                .userId(userId)
+                .userContextId(userContextId)
                 .email(email)
                 .primary(primary)
                 .status(status)
-                .createdOn(createdOn)
+                .createdAt(createdAt)
                 .build();
     }
 
     public static Email fromDto(EmailDto dto) {
         return Email.builder()
                 .id(dto.getId())
-                .userId(dto.getUserId())
+                .userContextId(dto.getUserContextId())
                 .email(dto.getEmail())
                 .primary(dto.isPrimary())
                 .status(dto.getStatus())
-                .createdOn(dto.getCreatedOn())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 }

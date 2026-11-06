@@ -22,14 +22,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/user-devices")
-public class UserDevicesController extends BaseController<UserDevice, UserDeviceDto, UserDeviceRequest, UserDeviceResponse> {
+public class UserDevicesController extends BaseController<UserDevice, UserDeviceDto, UserDeviceRequest, UserDeviceResponse, UserDeviceResponse> {
 
     private final RegisterUserDeviceService registerUserDeviceService;
 
     public UserDevicesController(UserDevicesHandler handler,
                                  RegisterUserDeviceService registerUserDeviceService
                                  ) {
-        super(handler);
+        super(handler, UserDeviceResponse.class);
         this.registerUserDeviceService = registerUserDeviceService;
     }
 

@@ -3,11 +3,11 @@ package com.gossamercms.firebase.services;
 import com.google.firebase.messaging.*;
 import com.gossamercms.firebase.dtos.results.FirebaseSendResult;
 import com.google.firebase.messaging.FirebaseMessagingException;
-import org.springframework.stereotype.Service;
+import com.gossamercms.mvc.annotations.ModuleService;
 
 import java.util.Map;
 
-@Service
+@ModuleService
 public class FirebasePushService {
 
     public FirebaseSendResult send(

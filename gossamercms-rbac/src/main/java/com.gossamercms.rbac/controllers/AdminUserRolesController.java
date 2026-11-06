@@ -13,12 +13,12 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/admin/rbac/users")
-public class AdminUserRolesController extends BaseController<UserRole, UserRoleDto, UserRoleRequest, UserRoleResponse> {
+public class AdminUserRolesController extends BaseController<UserRole, UserRoleDto, UserRoleRequest, UserRoleResponse, UserRoleResponse> {
 
     private final UserRolesHandler handler;
 
     public AdminUserRolesController(UserRolesHandler handler) {
-        super(handler);
+        super(handler, UserRoleResponse.class);
         this.handler = handler;
     }
 

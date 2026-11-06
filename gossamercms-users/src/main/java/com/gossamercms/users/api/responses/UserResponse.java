@@ -19,5 +19,5 @@ public class UserResponse {
     private String lastname;
     private String status;
     private String ipAddress;
-    private Instant createdOn;
+    private Instant createdAt;
 }

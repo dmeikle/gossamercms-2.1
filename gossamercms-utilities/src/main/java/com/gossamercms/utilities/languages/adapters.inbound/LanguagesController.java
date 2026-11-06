@@ -14,10 +14,10 @@ import com.gossamercms.utilities.languages.dtos.responses.LanguageResponse;
 
 @RestController
 @RequestMapping("/admin/languages")
-public class LanguagesController extends BaseController<Language, LanguageDto, LanguageRequest, LanguageResponse> {
+public class LanguagesController extends BaseController<Language, LanguageDto, LanguageRequest, LanguageResponse, LanguageResponse> {
 
     public LanguagesController(LanguagesHandler handler) {
-        super(handler);
+        super(handler, LanguageResponse.class);
     }
 
     @Override

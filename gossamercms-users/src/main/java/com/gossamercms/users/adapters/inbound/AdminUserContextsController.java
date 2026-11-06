@@ -17,10 +17,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/auth/contexts")
-public class AdminUserContextsController extends BaseController<UserContext, UserContextDto, UserContextRequest, UserContextResponse> {
+public class AdminUserContextsController extends BaseController<UserContext, UserContextDto, UserContextRequest, UserContextResponse, UserContextResponse> {
 
     public AdminUserContextsController(UserContextsHandler handler) {
-        super(handler);
+        super(handler, UserContextResponse.class);
     }
 
 

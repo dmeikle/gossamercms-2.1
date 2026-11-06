@@ -35,7 +35,7 @@ public class UserTelephonesDbService extends BaseDbService<UserTelephone, UserTe
                 .smsOptIn(entity.isSmsOptIn())
                 .preferred(entity.isPreferred())
                 .extension(entity.getExtension())
-                .createdOn(entity.getCreatedOn())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class UserTelephonesDbService extends BaseDbService<UserTelephone, UserTe
                 .smsOptIn(dto.isSmsOptIn())
                 .preferred(dto.isPreferred())
                 .extension(dto.getExtension())
-                .createdOn(dto.getCreatedOn())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 

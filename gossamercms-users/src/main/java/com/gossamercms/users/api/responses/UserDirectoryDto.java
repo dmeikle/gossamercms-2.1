@@ -20,7 +20,7 @@ public class UserDirectoryDto implements DtoWithId {
     private String lastname;
     private String status;
     private String ipAddress;
-    private Instant createdOn;
+    private Instant createdAt;
 
     private String contextType;
 

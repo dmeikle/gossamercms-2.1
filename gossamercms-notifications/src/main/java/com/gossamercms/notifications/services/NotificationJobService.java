@@ -4,7 +4,7 @@ import com.gossamercms.mvc.annotations.ModuleService;
 import com.gossamercms.notifications.data.NotificationJobsDbService;
 import com.gossamercms.notifications.dtos.NotificationJobDto;
 import com.gossamercms.notifications.dtos.requests.NotificationRequest;
-import com.gossamercms.notifications.models.NotificationJobStatus;
+import com.gossamercms.notifications.enums.NotificationJobStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class NotificationJobService {
                 .priority(request.getPriority())
                 .metadata(request.getMetadata())
                 .scheduledAt(Instant.now())
-                .status(NotificationJobStatus.PENDING)
+                .status(NotificationJobStatus.PENDING.toString())
                 .attemptCount(0)
                 .build();
 

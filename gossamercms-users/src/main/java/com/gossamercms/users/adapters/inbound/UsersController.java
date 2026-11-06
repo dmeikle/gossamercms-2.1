@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/users")
-public class UsersController extends BaseController<User, UserDto, UserRequest, UserResponse> {
+public class UsersController extends BaseController<User, UserDto, UserRequest, UserResponse, UserResponse> {
 
     public UsersController(UsersHandler handler) {
-        super(handler);
+        super(handler, UserResponse.class);
     }
 
     @GetMapping("/hello")
@@ -40,7 +40,7 @@ public class UsersController extends BaseController<User, UserDto, UserRequest, 
                 .lastname(dto.getLastname())
                 .status(dto.getStatus())
                 .ipAddress(dto.getIpAddress())
-                .createdOn(dto.getCreatedOn())
+                .createdAt(dto.getCreatedAt())
                 .build();
     }
 
