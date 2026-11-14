@@ -15,6 +15,7 @@ import com.gossamercms.mvc.models.BaseModel;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Unmapped controller operations. Subclasses expose selected operations through
@@ -24,19 +25,33 @@ public abstract class TypedBaseController<
         EntityType extends BaseModel,
         DtoType extends DtoWithId,
         RequestType,
-        ResponseType> {
+        ResponseType,
+        ResponseListType> {
 
     protected final BaseHandler<EntityType, DtoType> handler;
+    protected final Class<ResponseListType> responseListClass;
 
-    protected TypedBaseController(BaseHandler<EntityType, DtoType> handler) {
+    protected TypedBaseController(
+            BaseHandler<EntityType, DtoType> handler,
+            Class<ResponseListType> responseListClass
+    ) {
         this.handler = handler;
+        this.responseListClass = responseListClass;
     }
+
 
 
 
     protected abstract DtoType toDto(RequestType request);
 
     protected abstract ResponseType toResponse(DtoType dto);
+
+
+    protected ListResultset<ResponseType> toResponse(ListResultset<DtoType> list) {
+        return new ListResultset<>(list.list().stream().map(this::toResponse).collect(Collectors.toList()),
+                list.page(),list.pageSize(),list.totalCount(),list.totalPages());
+    }
+
 
     protected ApiResponse<ResponseType> getById(DtoType existing) {
         return ApiResponse.ok(toResponse(existing));
@@ -48,7 +63,7 @@ public abstract class TypedBaseController<
     }
 
     // ---------- LIST / PAGINATION ----------
-    protected ListResultset<ResponseType> _getAll(
+    protected ListResultset<ResponseListType> _getAll(
             CurrentJwtUser jwtUser,
             int page,
             int size,
@@ -58,7 +73,8 @@ public abstract class TypedBaseController<
         params.remove("size");
 
         QueryOptions options = QueryOptions.of(page, size, params, Map.of());
-        return toResponseResultset(handler.getAll(options));
+
+        return handler.getAll(options, responseListClass);
     }
 
     protected <ResultDto> ListResultset<ResultDto> _getAll(

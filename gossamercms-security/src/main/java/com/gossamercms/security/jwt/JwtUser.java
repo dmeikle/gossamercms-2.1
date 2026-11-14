@@ -27,6 +27,13 @@ public class JwtUser implements UserDetails, CurrentJwtUser {
     private final String[] adminPermissions;
     private Collection<GrantedAuthority> authorities;
 
+    //this constructor is used for creating a JwtUser with only userId and userContextId,
+    // other fields are set to default values. Only intended to be used in methods
+    //that are requiring userContextId and userId, but not the other fields.
+    public JwtUser(UUID userId, UUID userContextId) {
+        this(userId, "", new String[0], new String[0], "", userContextId);
+    }
+
     public JwtUser(
             UUID userId,
             String identifier,

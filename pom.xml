@@ -28,6 +28,7 @@
         <module>gossamercms-notifications</module>
         <module>gossamercms-firebase</module>
         <module>gossamercms-emails</module>
+        <module>gossamercms-geolocation</module>
     </modules>
 
     <properties>

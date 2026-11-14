@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -88,23 +87,19 @@ class TypedBaseControllerTest {
     }
 
     @Test
-    void listAndBulkMapItemsAndPreservePagination() {
+    void bulkMapsItemsAndPreservesPagination() {
         when(user.getUserId()).thenReturn(userId);
         var result = new ListResultset<>(List.of(dto), 2, 10, 25, 3);
-        when(handler.getAll(any(QueryOptions.class))).thenReturn(result);
         when(handler.createOrReplaceBulk(userId, List.of(new TestDto(null, "example")), Map.of()))
                 .thenReturn(result);
         var expected = new ListResultset<>(List.of(new TestResponse("example")), 2, 10, 25, 3);
-        var params = new HashMap<String, Object>(Map.of("page", 2, "size", 10));
 
-        assertEquals(expected, controller._getAll(user, 2, 10, params));
-        assertTrue(params.isEmpty());
         assertEquals(expected, controller._createOrReplaceBulk(
                 user, List.of(new TestRequest("example")), Map.of()));
     }
 
     @Test
-    void customResultDtoDelegatesWithoutResponseMapping() {
+    void configuredListResultDelegatesWithoutResponseMapping() {
         var result = new ListResultset<>(
                 List.of(new CustomResult(dto.getId(), "custom")), 2, 10, 25, 3);
         var params = new HashMap<String, Object>(
@@ -112,9 +107,23 @@ class TypedBaseControllerTest {
         var options = QueryOptions.of(2, 10, Map.of("name", "example"), Map.of());
         when(handler.getAll(options, CustomResult.class)).thenReturn(result);
 
-        assertSame(result, controller._getAll(user, 2, 10, params, CustomResult.class));
+        assertSame(result, controller._getAll(user, 2, 10, params));
         assertEquals(Map.of("name", "example"), params);
         verify(handler).getAll(options, CustomResult.class);
+        verifyNoMoreInteractions(handler);
+    }
+
+    @Test
+    void explicitListResultOverridesConfiguredClass() {
+        var result = new ListResultset<>(List.of(new TestResponse("custom")), 2, 10, 25, 3);
+        var params = new HashMap<String, Object>(
+                Map.of("page", 2, "size", 10, "name", "example"));
+        var options = QueryOptions.of(2, 10, Map.of("name", "example"), Map.of());
+        when(handler.getAll(options, TestResponse.class)).thenReturn(result);
+
+        assertSame(result, controller._getAll(user, 2, 10, params, TestResponse.class));
+        assertEquals(Map.of("name", "example"), params);
+        verify(handler).getAll(options, TestResponse.class);
         verifyNoMoreInteractions(handler);
     }
 
@@ -151,12 +160,12 @@ class TypedBaseControllerTest {
     @RestController
     @RequestMapping("/typed")
     static class TestController
-            extends TypedBaseController<BaseModel, TestDto, TestRequest, TestResponse> {
+            extends TypedBaseController<BaseModel, TestDto, TestRequest, TestResponse, CustomResult> {
 
         private final CurrentJwtUser user;
 
         TestController(TestHandler handler, CurrentJwtUser user) {
-            super(handler);
+            super(handler, CustomResult.class);
             this.user = user;
         }
 

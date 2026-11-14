@@ -65,15 +65,19 @@ empty disposable PostgreSQL database using user `postgres` and password
 
 ## Typed controllers
 
-`TypedBaseController<EntityType, DtoType, RequestType, ResponseType>` provides
+`TypedBaseController<EntityType, DtoType, RequestType, ResponseType, ResponseListType>` provides
 protected operations without HTTP mappings or parameter-binding annotations.
 Concrete controllers choose which operations to expose through public annotated
 methods, and implement `toDto(RequestType)` and `toResponse(DtoType)`.
-Handlers continue to use `DtoType`; list and bulk responses map each item to
-`ResponseType` while retaining pagination metadata.
+Supply `ResponseListType.class` alongside the handler to the base constructor.
+Handlers continue to use `DtoType`; list operations delegate to
+`handler.getAll(options, responseListClass)` without applying `toResponse`.
+Bulk responses map each item to `ResponseType`. Both retain pagination metadata.
+The `_getAll` overload accepting a result DTO class overrides the configured list
+class for that call.
 
 For example, a concrete controller extending
-`TypedBaseController<Product, ProductDto, ProductRequest, ProductResponse>` can
+`TypedBaseController<Product, ProductDto, ProductRequest, ProductResponse, ProductSummary>` can
 expose only creation:
 
 ```java
@@ -82,7 +86,7 @@ public ApiResponse<ProductResponse> createProduct(
         @CurrentUser CurrentJwtUser user,
         @RequestBody ProductRequest request
 ) {
-    return super.create(user, request);
+    return ApiResponse.ok(super._create(user, request));
 }
 ```
 
@@ -116,6 +120,15 @@ Converters extending `BaseConverter` resolve UUID strings by ID and other string
 by the `slug` column. Slug lookup requires `slug` in the model's column metadata.
 A missing UUID does not fall back to slug lookup. Missing records produce a 404;
 other lookup errors propagate rather than being converted to a 404.
+
+## Address autocomplete
+
+The `geolocation` module provides `GeoapifyAddressCompletionProvider`.
+Set `GEOAPIFY_API_KEY` before using its no-argument constructor, or pass the
+API key to `new GeoapifyAddressCompletionProvider(apiKey)`.
+`complete(query)` sends a URL-encoded query to Geoapify's autocomplete endpoint,
+requests up to five JSON results, and maps them to address suggestions.
+HTTP and invalid-response errors propagate to the caller.
 
 ## Email template lookup
 

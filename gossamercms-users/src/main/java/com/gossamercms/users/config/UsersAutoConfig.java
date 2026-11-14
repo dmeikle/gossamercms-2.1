@@ -1,7 +1,6 @@
 package com.gossamercms.users.config;
 
 import com.gossamercms.mvc.autoconfig.*;
-import com.gossamercms.users.converters.UserConverter;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
