@@ -1085,6 +1085,10 @@ public class PostgresAdapter implements DataSourceAdapter {
         namedJdbcTemplate.update(sql, params);
     }
 
+    public <T> T executeSql(String sql, Class<T> clazz) {
+        return jdbc.queryForObject(sql, clazz);
+    }
+
     private String insertWhereClause(String sql, String whereClause) {
 
         if (whereClause == null || whereClause.isBlank()) {

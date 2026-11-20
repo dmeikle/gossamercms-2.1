@@ -83,7 +83,7 @@ public abstract class BaseController<
         }
 
         DtoType dto = toDto(request);
-        return ApiResponse.ok(toResponse(handler.create(jwtUser.getUserId(), dto)));
+        return ApiResponse.ok(toResponse(handler.create(jwtUser.getUserContextId(), dto)));
     }
 
     // ---------- UPDATE BY ID ----------
@@ -93,7 +93,7 @@ public abstract class BaseController<
             @PathVariable("id") DtoType existing, //rely on the converter to preload it
             @RequestBody DtoType dto
     ) {
-        return ApiResponse.ok(toResponse(handler.updateById(jwtUser.getUserId(), existing.getId(), dto)));
+        return ApiResponse.ok(toResponse(handler.updateById(jwtUser.getUserContextId(), existing.getId(), dto)));
     }
 
     // ---------- UPDATE BY FILTER ----------
@@ -103,7 +103,7 @@ public abstract class BaseController<
             @RequestBody DtoType dto,
             @RequestParam Map<String, Object> params
     ) {
-        return ApiResponse.ok(toResponse(handler.update(jwtUser.getUserId(), dto, params)));
+        return ApiResponse.ok(toResponse(handler.update(jwtUser.getUserContextId(), dto, params)));
     }
 
     // ---------- DELETE BY ID ----------
@@ -112,7 +112,7 @@ public abstract class BaseController<
             @CurrentUser CurrentJwtUser jwtUser,
             @PathVariable("id") DtoType existing
     ) {
-        handler.deleteById(jwtUser.getUserId(), existing.getId());
+        handler.deleteById(jwtUser.getUserContextId(), existing.getId());
     }
 
     // ---------- DELETE BY FILTER ----------
@@ -121,7 +121,7 @@ public abstract class BaseController<
             @CurrentUser CurrentJwtUser jwtUser,
             @RequestParam Map<String, Object> params
     ) {
-        handler.delete(jwtUser.getUserId(), params);
+        handler.delete(jwtUser.getUserContextId(), params);
     }
 
     // ---------- RESTORE ----------
@@ -131,7 +131,7 @@ public abstract class BaseController<
             @CurrentUser CurrentJwtUser jwtUser,
             @PathVariable UUID id
     ) {
-        return ApiResponse.ok(toResponse(handler.restoreById(jwtUser.getUserId(), id)));
+        return ApiResponse.ok(toResponse(handler.restoreById(jwtUser.getUserContextId(), id)));
     }
 
     // ---------- BULK CREATE OR REPLACE ----------
@@ -142,7 +142,7 @@ public abstract class BaseController<
             @RequestParam Map<String, Object> deleteExistingKey
     ) {
         List<DtoType> dtos = requests.stream().map(this::toDto).collect(Collectors.toList());
-        return ApiResponse.ok(toResponse(handler.createOrReplaceBulk(jwtUser.getUserId(), dtos, deleteExistingKey)));
+        return ApiResponse.ok(toResponse(handler.createOrReplaceBulk(jwtUser.getUserContextId(), dtos, deleteExistingKey)));
     }
 
     protected Map<String, String> getOrderBy(Map<String, Object> params) {

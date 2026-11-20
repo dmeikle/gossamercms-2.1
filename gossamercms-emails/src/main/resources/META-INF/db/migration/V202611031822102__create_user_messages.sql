@@ -1,4 +1,4 @@
-CREATE TABLE user_messages (
+CREATE TABLE if not exists user_messages (
     "id" UUID PRIMARY KEY,
     "createdBy" UUID,
     "updatedBy" UUID,

@@ -43,7 +43,7 @@ public class AdminMediaController extends BaseController<Media, MediaDto, MediaR
 //
 //        Integer width = image != null ? image.getWidth() : null;
 //        Integer height = image != null ? image.getHeight() : null;
-        return toResponse(mediaService.upload(jwtUser.getUserId(), file));
+        return toResponse(mediaService.upload(jwtUser.getUserContextId(), file));
     }
 
     @Override

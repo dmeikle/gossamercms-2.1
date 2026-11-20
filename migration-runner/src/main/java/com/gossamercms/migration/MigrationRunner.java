@@ -15,10 +15,13 @@ public class MigrationRunner {
 
     public static void main(String[] args) throws Exception {
         boolean dryRun = false;
+        boolean moduleDirs = false;
         List<Path> roots = new ArrayList<>();
         for (String arg : args) {
             if ("--dry-run".equals(arg)) {
                 dryRun = true;
+            } else if ("--module-dirs".equals(arg)) {
+                moduleDirs = true;
             } else {
                 Path root = Path.of(arg).toAbsolutePath().normalize();
                 if (!Files.isRegularFile(root.resolve("pom.xml"))) {
@@ -29,20 +32,26 @@ public class MigrationRunner {
         }
         if (roots.isEmpty()) {
             throw new IllegalArgumentException(
-                    "Usage: MigrationRunner [--dry-run] <project-root> [<project-root> ...]");
+                    "Usage: MigrationRunner [--dry-run] [--module-dirs] <path> [<path> ...]");
         }
 
         Map<Class<? extends BaseModel>, Path> models = new LinkedHashMap<>();
         for (Path root : roots) {
-            for (Class<? extends BaseModel> model : ModelScanner.findAllModels(root)) {
-                models.put(model, ModuleLocator.findResourcesFor(model, root));
+            if (moduleDirs && !Files.isDirectory(root.resolve("target/classes"))) {
+                System.out.println("No compiled classes in module: " + root);
+            }
+            var moduleModels = moduleDirs ? ModelScanner.findModuleModels(root) : ModelScanner.findAllModels(root);
+            for (Class<? extends BaseModel> model : moduleModels) {
+                models.put(model, moduleDirs ? root.resolve("src/main/resources")
+                        : ModuleLocator.findResourcesFor(model, root));
             }
         }
         if (models.isEmpty()) {
             throw new IllegalStateException("No compiled models found; build the projects first.");
         }
 
-        List<Path> migrations = MigrationWriter.findMigrations(roots);
+        List<Path> migrations = moduleDirs ? MigrationWriter.findModuleMigrations(roots)
+                : MigrationWriter.findMigrations(roots);
         var version = MigrationWriter.nextVersion(migrations);
         var tables = MigrationWriter.createdTables(migrations);
         for (var entry : models.entrySet().stream()

@@ -60,10 +60,10 @@ class BaseControllerTest {
     @Test
     void bulkResultsStillUseResponseType() {
         var user = mock(CurrentJwtUser.class);
-        var userId = UUID.randomUUID();
-        when(user.getUserId()).thenReturn(userId);
+        var userContextId = UUID.randomUUID();
+        when(user.getUserContextId()).thenReturn(userContextId);
         var dto = new TestDto(null, "example");
-        when(handler.createOrReplaceBulk(userId, List.of(dto), Map.of()))
+        when(handler.createOrReplaceBulk(userContextId, List.of(dto), Map.of()))
                 .thenReturn(new ListResultset<>(List.of(dto), 1, 10, 1, 1));
 
         var response = controller.createOrReplaceBulk(user, List.of("example"), Map.of());
@@ -71,7 +71,7 @@ class BaseControllerTest {
         assertTrue(response.isSuccess());
         assertEquals(new ListResultset<>(List.of(new TestResponse("example")), 1, 10, 1, 1),
                 response.getData());
-        verify(handler).createOrReplaceBulk(userId, List.of(dto), Map.of());
+        verify(handler).createOrReplaceBulk(userContextId, List.of(dto), Map.of());
         verifyNoMoreInteractions(handler);
     }
 

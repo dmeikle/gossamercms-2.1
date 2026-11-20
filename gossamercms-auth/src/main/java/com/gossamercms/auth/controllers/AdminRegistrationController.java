@@ -53,7 +53,7 @@ public class AdminRegistrationController {
             @CurrentUser JwtUser jwtUser,
             @PathVariable("user") UserDto user
     ) {
-        handler.deleteAccount(jwtUser.getUserId(), user.getId());
+        handler.deleteAccount(jwtUser.getUserContextId(), user.getId());
     }
 
 }

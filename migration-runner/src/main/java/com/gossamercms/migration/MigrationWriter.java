@@ -23,17 +23,27 @@ public class MigrationWriter {
             Pattern.CASE_INSENSITIVE);
 
     public static List<Path> findMigrations(List<Path> roots) throws IOException {
-        List<Path> migrations = new ArrayList<>();
+        List<Path> moduleDirs = new ArrayList<>();
         for (Path root : roots) {
             try (var modules = Files.list(root)) {
-                for (Path module : modules.filter(Files::isDirectory).sorted().toList()) {
-                    Path directory = module.resolve("src/main/resources/db/migration");
-                    if (Files.isDirectory(directory)) {
-                        try (var files = Files.walk(directory)) {
-                            migrations.addAll(files.filter(Files::isRegularFile)
-                                    .filter(p -> p.toString().endsWith(".sql")).sorted().toList());
-                        }
-                    }
+                moduleDirs.addAll(modules.filter(Files::isDirectory).sorted().toList());
+            }
+        }
+        return findModuleMigrations(moduleDirs);
+    }
+
+    public static List<Path> findModuleMigrations(List<Path> moduleDirs) throws IOException {
+        List<Path> migrations = new ArrayList<>();
+        for (Path module : moduleDirs) {
+            Path resources = module.resolve("src/main/resources");
+            for (String location : List.of("db/migration", "META-INF/db/migration")) {
+                Path directory = resources.resolve(location);
+                if (!Files.isDirectory(directory)) {
+                    continue;
+                }
+                try (var files = Files.walk(directory)) {
+                    migrations.addAll(files.filter(Files::isRegularFile)
+                            .filter(p -> p.toString().endsWith(".sql")).sorted().toList());
                 }
             }
         }

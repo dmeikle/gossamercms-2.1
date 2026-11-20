@@ -1,4 +1,4 @@
-CREATE TABLE contact_forms (
+CREATE TABLE if not exists contact_forms (
     "id" UUID PRIMARY KEY,
     "name" VARCHAR(255),
     "slug" VARCHAR(255),
@@ -19,4 +19,4 @@ CREATE TABLE contact_forms (
     "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     CONSTRAINT "fk_contact_forms_createdBy" FOREIGN KEY ("createdBy") REFERENCES "users" ("id")
 );
-CREATE INDEX "idx_contact_forms_createdBy" ON "contact_forms" ("createdBy");
+CREATE INDEX if not exists "idx_contact_forms_createdBy" ON "contact_forms" ("createdBy");

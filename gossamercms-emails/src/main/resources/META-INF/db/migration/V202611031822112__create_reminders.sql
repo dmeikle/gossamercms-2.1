@@ -4,7 +4,7 @@ CREATE TABLE reminders (
     "updatedBy" UUID,
     "deletedAt" TIMESTAMP WITH TIME ZONE,
     "deletedBy" UUID,
-    "reminderTypesId" INTEGER,
+    "reminderTypesId" UUID,
     "accountMappingsId" UUID,
     "notifyAt" TIMESTAMP WITH TIME ZONE,
     "notifyAtLabel" VARCHAR(100),

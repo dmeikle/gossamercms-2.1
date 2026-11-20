@@ -13,13 +13,11 @@ CREATE TABLE templates (
     "ttl" INTEGER,
     "buildCommand" VARCHAR(45),
     "createdBy" UUID,
-    "createdAt" TIMESTAMP WITH TIME ZONE,
     "updatedBy" UUID,
-    "updatedAt" TIMESTAMP WITH TIME ZONE,
     "deletedBy" UUID,
-    "deletedAt" TIMESTAMP WITH TIME ZONE,
-    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    "deletedAt" TIMESTAMP,
+    "createdAt" TIMESTAMP DEFAULT NOW(),
+    "updatedAt" TIMESTAMP DEFAULT NOW(),
     CONSTRAINT "fk_Templates_subscriptionKey" FOREIGN KEY ("subscriptionKey") REFERENCES "SubscriptionKeys" ("subscriptionKey")
 );
 

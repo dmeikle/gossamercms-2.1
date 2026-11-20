@@ -73,6 +73,7 @@ public interface DataSourceAdapter {
 
     public <T> T findOneBySql(String sql, Map<String, Object> params, RowMapper<T> mapper);
     public void executeSql(String sql, Map<String, Object> params);
+    public <T> T executeSql(String sql, Class<T> clazz);
 
     public String buildWhere(
             Map<String,Object> filters,

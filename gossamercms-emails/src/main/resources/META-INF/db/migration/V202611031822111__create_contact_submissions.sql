@@ -1,4 +1,4 @@
-CREATE TABLE contact_submissions (
+CREATE TABLE if not exists contact_submissions (
     "id" UUID PRIMARY KEY,
     "contactFormId" UUID,
     "submitterName" VARCHAR(255),
@@ -20,5 +20,5 @@ CREATE TABLE contact_submissions (
     CONSTRAINT "fk_contact_submissions_contactFormId" FOREIGN KEY ("contactFormId") REFERENCES "contact_forms" ("id"),
     CONSTRAINT "fk_contact_submissions_assignedTo" FOREIGN KEY ("assignedTo") REFERENCES "users" ("id")
 );
-CREATE INDEX "idx_contact_submissions_contactFormId" ON "contact_submissions" ("contactFormId");
-CREATE INDEX "idx_contact_submissions_assignedTo" ON "contact_submissions" ("assignedTo");
+CREATE INDEX if not exists "idx_contact_submissions_contactFormId" ON "contact_submissions" ("contactFormId");
+CREATE INDEX if not exists "idx_contact_submissions_assignedTo" ON "contact_submissions" ("assignedTo");

@@ -33,7 +33,7 @@ class TypedBaseControllerTest {
 
     private final TestHandler handler = mock(TestHandler.class);
     private final CurrentJwtUser user = mock(CurrentJwtUser.class);
-    private final UUID userId = UUID.randomUUID();
+    private final UUID userContextId = UUID.randomUUID();
     private final TestDto dto = new TestDto(UUID.randomUUID(), "example");
     private final TestController controller = new TestController(handler, user);
 
@@ -54,8 +54,8 @@ class TypedBaseControllerTest {
     @Test
     void onlyConcreteMappingsAreExposedAndBindCustomRequest() throws Exception {
         when(user.isAuthenticated()).thenReturn(true);
-        when(user.getUserId()).thenReturn(userId);
-        when(handler.create(userId, new TestDto(null, "example"))).thenReturn(dto);
+        when(user.getUserContextId()).thenReturn(userContextId);
+        when(handler.create(userContextId, new TestDto(null, "example"))).thenReturn(dto);
 
         var mvc = MockMvcBuilders.standaloneSetup(controller).build();
         mvc.perform(post("/typed").contentType(MediaType.APPLICATION_JSON)
@@ -67,16 +67,16 @@ class TypedBaseControllerTest {
         mvc.perform(get("/typed")).andExpect(status().isMethodNotAllowed());
         mvc.perform(get("/typed/" + dto.getId())).andExpect(status().isNotFound());
         mvc.perform(post("/typed/bulk")).andExpect(status().isNotFound());
-        verify(handler).create(userId, new TestDto(null, "example"));
+        verify(handler).create(userContextId, new TestDto(null, "example"));
     }
 
     @Test
     void singleResultsUseResponseMapping() {
-        when(user.getUserId()).thenReturn(userId);
+        when(user.getUserContextId()).thenReturn(userContextId);
         when(handler.get(Map.of())).thenReturn(dto);
-        when(handler.updateById(userId, dto.getId(), new TestDto(null, "example"))).thenReturn(dto);
-        when(handler.update(userId, new TestDto(null, "example"), Map.of())).thenReturn(dto);
-        when(handler.restoreById(userId, dto.getId())).thenReturn(dto);
+        when(handler.updateById(userContextId, dto.getId(), new TestDto(null, "example"))).thenReturn(dto);
+        when(handler.update(userContextId, new TestDto(null, "example"), Map.of())).thenReturn(dto);
+        when(handler.restoreById(userContextId, dto.getId())).thenReturn(dto);
         var expected = new TestResponse("example");
 
         assertEquals(expected, controller.getById(dto).getData());
@@ -88,9 +88,9 @@ class TypedBaseControllerTest {
 
     @Test
     void bulkMapsItemsAndPreservesPagination() {
-        when(user.getUserId()).thenReturn(userId);
+        when(user.getUserContextId()).thenReturn(userContextId);
         var result = new ListResultset<>(List.of(dto), 2, 10, 25, 3);
-        when(handler.createOrReplaceBulk(userId, List.of(new TestDto(null, "example")), Map.of()))
+        when(handler.createOrReplaceBulk(userContextId, List.of(new TestDto(null, "example")), Map.of()))
                 .thenReturn(result);
         var expected = new ListResultset<>(List.of(new TestResponse("example")), 2, 10, 25, 3);
 
@@ -136,11 +136,11 @@ class TypedBaseControllerTest {
 
     @Test
     void deletesDelegateToHandler() {
-        when(user.getUserId()).thenReturn(userId);
+        when(user.getUserContextId()).thenReturn(userContextId);
         controller._deleteById(user, dto);
         controller._delete(user, Map.of("name", "example"));
-        verify(handler).deleteById(userId, dto.getId());
-        verify(handler).delete(userId, Map.of("name", "example"));
+        verify(handler).deleteById(userContextId, dto.getId());
+        verify(handler).delete(userContextId, Map.of("name", "example"));
     }
 
     public record TestRequest(String name) {}

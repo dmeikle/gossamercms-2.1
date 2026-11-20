@@ -100,7 +100,7 @@ public abstract class TypedBaseController<
             throw new UnauthorizedStatusException();
         }
 
-        return toResponse(handler.create(jwtUser.getUserId(), toDto(request)));
+        return toResponse(handler.create(jwtUser.getUserContextId(), toDto(request)));
     }
 
     // ---------- UPDATE BY ID ----------
@@ -109,7 +109,7 @@ public abstract class TypedBaseController<
             DtoType existing,
             RequestType request
     ) {
-        return toResponse(handler.updateById(jwtUser.getUserId(), existing.getId(), toDto(request)));
+        return toResponse(handler.updateById(jwtUser.getUserContextId(), existing.getId(), toDto(request)));
     }
 
     // ---------- UPDATE BY FILTER ----------
@@ -118,7 +118,7 @@ public abstract class TypedBaseController<
             RequestType request,
             Map<String, Object> params
     ) {
-        return toResponse(handler.update(jwtUser.getUserId(), toDto(request), params));
+        return toResponse(handler.update(jwtUser.getUserContextId(), toDto(request), params));
     }
 
     // ---------- DELETE BY ID ----------
@@ -126,7 +126,7 @@ public abstract class TypedBaseController<
             CurrentJwtUser jwtUser,
             DtoType existing
     ) {
-        handler.deleteById(jwtUser.getUserId(), existing.getId());
+        handler.deleteById(jwtUser.getUserContextId(), existing.getId());
     }
 
     // ---------- DELETE BY FILTER ----------
@@ -134,7 +134,7 @@ public abstract class TypedBaseController<
             CurrentJwtUser jwtUser,
             Map<String, Object> params
     ) {
-        handler.delete(jwtUser.getUserId(), params);
+        handler.delete(jwtUser.getUserContextId(), params);
     }
 
     // ---------- RESTORE ----------
@@ -142,7 +142,7 @@ public abstract class TypedBaseController<
             CurrentJwtUser jwtUser,
             UUID id
     ) {
-        return toResponse(handler.restoreById(jwtUser.getUserId(), id));
+        return toResponse(handler.restoreById(jwtUser.getUserContextId(), id));
     }
 
     // ---------- BULK CREATE OR REPLACE ----------
@@ -153,7 +153,7 @@ public abstract class TypedBaseController<
     ) {
         List<DtoType> dtos = requests.stream().map(this::toDto).toList();
         return toResponseResultset(
-                handler.createOrReplaceBulk(jwtUser.getUserId(), dtos, deleteExistingKey));
+                handler.createOrReplaceBulk(jwtUser.getUserContextId(), dtos, deleteExistingKey));
     }
 
     protected ListResultset<ResponseType> toResponseResultset(ListResultset<DtoType> result) {

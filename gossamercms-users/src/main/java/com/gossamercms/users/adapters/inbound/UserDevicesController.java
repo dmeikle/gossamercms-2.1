@@ -41,7 +41,7 @@ public class UserDevicesController extends BaseController<UserDevice, UserDevice
         }catch (NotFoundException e) {
             device = new UserDeviceDto();
         }
-        registerUserDeviceService.register(jwtUser.getUserId(), device, request);
+        registerUserDeviceService.register(jwtUser.getUserContextId(), device, request);
     }
 
     @Override
