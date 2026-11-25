@@ -30,6 +30,7 @@ public abstract class TypedBaseController<
 
     protected final BaseHandler<EntityType, DtoType> handler;
     protected final Class<ResponseListType> responseListClass;
+    protected final boolean deleteExistingOnBulkUpdate;
 
     protected TypedBaseController(
             BaseHandler<EntityType, DtoType> handler,
@@ -37,9 +38,19 @@ public abstract class TypedBaseController<
     ) {
         this.handler = handler;
         this.responseListClass = responseListClass;
+        this.deleteExistingOnBulkUpdate = false;
     }
 
 
+    protected TypedBaseController(
+            BaseHandler<EntityType, DtoType> handler,
+            Class<ResponseListType> responseListClass,
+            boolean deleteExistingOnBulkUpdate
+    ) {
+        this.handler = handler;
+        this.responseListClass = responseListClass;
+        this.deleteExistingOnBulkUpdate = deleteExistingOnBulkUpdate;
+    }
 
 
     protected abstract DtoType toDto(RequestType request);
@@ -153,7 +164,7 @@ public abstract class TypedBaseController<
     ) {
         List<DtoType> dtos = requests.stream().map(this::toDto).toList();
         return toResponseResultset(
-                handler.createOrReplaceBulk(jwtUser.getUserContextId(), dtos, deleteExistingKey));
+                handler.createOrReplaceBulk(jwtUser.getUserContextId(), dtos, deleteExistingKey, deleteExistingOnBulkUpdate));
     }
 
     protected ListResultset<ResponseType> toResponseResultset(ListResultset<DtoType> result) {

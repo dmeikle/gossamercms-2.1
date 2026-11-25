@@ -90,7 +90,7 @@ class TypedBaseControllerTest {
     void bulkMapsItemsAndPreservesPagination() {
         when(user.getUserContextId()).thenReturn(userContextId);
         var result = new ListResultset<>(List.of(dto), 2, 10, 25, 3);
-        when(handler.createOrReplaceBulk(userContextId, List.of(new TestDto(null, "example")), Map.of()))
+        when(handler.createOrReplaceBulk(userContextId, List.of(new TestDto(null, "example")), Map.of(), false))
                 .thenReturn(result);
         var expected = new ListResultset<>(List.of(new TestResponse("example")), 2, 10, 25, 3);
 

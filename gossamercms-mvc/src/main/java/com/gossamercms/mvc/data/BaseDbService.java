@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class BaseDbService<
@@ -42,6 +43,7 @@ public abstract class BaseDbService<
         this.dsManager = dsManager;
         this.batchUpdateSql = buildBatchUpdateSql(this.meta);
     }
+
 
     // ---------- Mapping ----------
     protected abstract EntityType mapToEntity(DtoType dto);
@@ -265,7 +267,9 @@ public abstract class BaseDbService<
         return params;
     }
 
-
+    protected static Instant toInstant(Timestamp timestamp) {
+        return timestamp == null ? null : timestamp.toInstant();
+    }
 
 
     public DtoType getById(UUID id) {
@@ -381,43 +385,257 @@ public abstract class BaseDbService<
         return validated;
     }
 
+//
+//  //@Transactional
+//  public ListResultset<DtoType> createOrReplaceBulk(
+//          UUID createdBy,
+//          List<DtoType> dtos,
+//          Map<String, Object> deleteExistingKey,
+//          boolean updateExisting) {
+//
+//      if (!updateExisting) {
+//          // Your existing implementation:
+//          // 1. Soft-delete existing rows.
+//          // 2. Insert all supplied DTOs.
+//          return createOrReplaceBulk(createdBy, dtos, deleteExistingKey);
+//      }
+//
+//      List<DtoType> saved = new ArrayList<>();
+//
+//      // Retrieve existing records matching deleteExistingKey.
+//      List<DtoType> existing = getAll(
+//              QueryOptions.builder()
+//                      .queryFilters(List.of(new QueryFilter(
+//                              "id",
+//                              QueryFilter.Operator.IN,
+//                              dtos.stream().map(DtoWithId::getId).toList()
+//                      )))
+//                      .size(dtos.size())
+//                      .build(),
+//              dtoClass
+//      ).list();
+//
+//      Map<UUID, DtoType> existingById = existing.stream()
+//              .collect(Collectors.toMap(
+//                      DtoType::getId,
+//                      Function.identity()
+//              ));
+//
+//      Set<UUID> processedIds = new HashSet<>();
+//
+//      for (DtoType dto : dtos) {
+//          DtoType existingDto = dto.getId() != null
+//                  ? existingById.get(dto.getId())
+//                  : null;
+//
+//          if (existingDto != null) {
+//              // Update existing record.
+//              saved.add(this.updateById(createdBy, dto, existingDto.getId()));
+//              processedIds.add(dto.getId());
+//          } else {
+//              // Insert new record.
+//              saved.add(this.create(createdBy, dto));
+//          }
+//      }
+//
+//      // Soft-delete existing records that were not supplied.
+//      Set<UUID> idsToDelete = existingById.keySet().stream()
+//              .filter(id -> !processedIds.contains(id))
+//              .collect(Collectors.toSet());
+//
+//      if (!idsToDelete.isEmpty()) {
+//          idsToDelete.stream().forEach(id -> this.deleteById(createdBy, id));
+//      }
+//
+//      return ListResultset.of(saved, 1, -1, (long) saved.size());
+//  }
+//
+//    public ListResultset<DtoType> createOrReplaceBulk(
+//            UUID createdBy,
+//            List<DtoType> dtos,
+//            Map<String, Object> deleteExistingKey) {
+//
+//        return createOrReplaceBulk(createdBy, dtos, deleteExistingKey, false);
+//    }
 
-  //  @Transactional
     public ListResultset<DtoType> createOrReplaceBulk(
             UUID createdBy,
             List<DtoType> dtos,
-            Map<String, Object> deleteExistingKey
-    ) {
-        DataSourceAdapter ds = dsManager.get(meta.datasourceKey());
+            Map<String, Object> deleteExistingKey) {
 
-        // Soft-delete everything currently matching the key
-        if (!deleteExistingKey.isEmpty()) {
-            String where = deleteExistingKey.keySet().stream()
+        return this.createOrReplaceBulk(
+                createdBy, dtos, deleteExistingKey, false
+        );
+    }
+
+
+    public ListResultset<DtoType> createOrReplaceBulk(
+            UUID createdBy,
+            List<DtoType> dtos,
+            Map<String, Object> deleteExistingKey,
+            boolean updateExisting) {
+
+        if (dtos == null) {
+            dtos = new ArrayList<>();
+        }
+
+        if (deleteExistingKey == null) {
+            deleteExistingKey = new HashMap<>();
+        }
+
+        if (updateExisting) {
+            return this.createOrReplaceBulkUpdate(
+                    createdBy, dtos, deleteExistingKey
+            );
+        }
+
+        return this.createOrReplaceBulkReplace(
+                createdBy, dtos, deleteExistingKey
+        );
+    }
+
+
+    private ListResultset<DtoType> createOrReplaceBulkReplace(
+            UUID createdBy,
+            List<DtoType> dtos,
+            Map<String, Object> deleteExistingKey) {
+
+        DataSourceAdapter ds = this.dsManager.get(
+                this.meta.datasourceKey()
+        );
+
+        Map<String, Object> normalizedKey = this.normalizeUuidValues(
+                deleteExistingKey
+        );
+
+        if (!normalizedKey.isEmpty()) {
+
+            String where = normalizedKey.keySet().stream()
                     .map(k -> "\"" + k + "\" = :" + k)
                     .collect(Collectors.joining(" AND "));
 
-            Map<String, Object> params = new HashMap<>(deleteExistingKey);
+            Map<String, Object> params = new HashMap<>(normalizedKey);
             params.put("deletedBy", createdBy);
 
             String sql = """
-            UPDATE "%s"
-            SET "deletedAt" = now(),
-                "deletedBy" = :deletedBy
-            WHERE %s
-            AND "deletedAt" IS NULL
-            """.formatted(meta.table(), where);
+                UPDATE "%s"
+                SET "deletedAt" = now(),
+                    "deletedBy" = :deletedBy
+                WHERE %s
+                AND "deletedAt" IS NULL
+                """.formatted(this.meta.table(), where);
 
             ds.executeSql(sql, params);
         }
 
-        // Create each incoming dto fresh, reusing existing create() logic
         List<DtoType> saved = new ArrayList<>();
+
         for (DtoType dto : dtos) {
-            saved.add(create(createdBy, dto));
+            saved.add(this.create(createdBy, dto));
         }
 
-        return ListResultset.of(saved, 1, -1, saved.size());
+        return ListResultset.of(saved, 1, -1, (long) saved.size());
     }
+
+
+    private ListResultset<DtoType> createOrReplaceBulkUpdate(
+            UUID createdBy,
+            List<DtoType> dtos,
+            Map<String, Object> deleteExistingKey) {
+
+        List<DtoType> saved = new ArrayList<>();
+
+        Map<String, Object> normalizedKey = this.normalizeUuidValues(
+                deleteExistingKey
+        );
+
+        List<DtoType> existing = new ArrayList<>();
+
+        if (!normalizedKey.isEmpty()) {
+
+            List<QueryFilter> filters = normalizedKey.entrySet()
+                    .stream()
+                    .map(entry -> new QueryFilter(
+                            entry.getKey(),
+                            QueryFilter.Operator.EQUALS,
+                            entry.getValue()
+                    ))
+                    .toList();
+
+            existing = this.getAll(
+                    QueryOptions.builder()
+                            .queryFilters(filters)
+                            .size(-1)
+                            .build(),
+                    this.dtoClass
+            ).list();
+        }
+
+        Map<UUID, DtoType> existingById = existing.stream()
+                .collect(Collectors.toMap(
+                        dto -> ((DtoWithId) dto).getId(),
+                        Function.identity()
+                ));
+
+        Set<UUID> processedIds = new HashSet<>();
+
+        for (DtoType dto : dtos) {
+
+            UUID id = dto.getId();
+
+            DtoType existingDto = id != null
+                    ? existingById.get(id)
+                    : null;
+
+            if (existingDto != null) {
+
+                saved.add(this.updateById(
+                        createdBy,
+                        dto,
+                        ((DtoWithId) existingDto).getId()
+                ));
+
+                processedIds.add(id);
+
+            } else {
+
+                saved.add(this.create(createdBy, dto));
+            }
+        }
+
+        Set<UUID> idsToDelete = existingById.keySet()
+                .stream()
+                .filter(id -> !processedIds.contains(id))
+                .collect(Collectors.toSet());
+
+        for (UUID id : idsToDelete) {
+            this.deleteById(createdBy, id);
+        }
+
+        return ListResultset.of(saved, 1, -1, (long) saved.size());
+    }
+
+
+    private Map<String, Object> normalizeUuidValues(
+            Map<String, Object> values) {
+
+        Map<String, Object> normalized = new HashMap<>();
+
+        for (Map.Entry<String, Object> entry : values.entrySet()) {
+
+            Object value = entry.getValue();
+
+            if (value instanceof String s && this.isUuid(s)) {
+                value = UUID.fromString(s);
+            }
+
+            normalized.put(entry.getKey(), value);
+        }
+
+        return normalized;
+    }
+
+
 
     public void deleteById(UUID deletedBy, UUID id) {
         DataSourceAdapter ds = dsManager.get(meta.datasourceKey());

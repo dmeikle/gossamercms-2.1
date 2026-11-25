@@ -28,6 +28,7 @@ public abstract class BaseController<
 
     protected final BaseHandler<EntityType, DtoType> handler;
     private final Class<ResponseListType> responseListClass;
+    private final boolean deleteExistingOnBulkUpdate;
 
     protected BaseController(
             BaseHandler<EntityType, DtoType> handler,
@@ -35,6 +36,17 @@ public abstract class BaseController<
     ) {
         this.handler = handler;
         this.responseListClass = responseListClass;
+        this.deleteExistingOnBulkUpdate = false;
+    }
+
+    protected BaseController(
+            BaseHandler<EntityType, DtoType> handler,
+            Class<ResponseListType> responseListClass,
+            boolean deleteExistingOnBulkUpdate
+    ) {
+        this.handler = handler;
+        this.responseListClass = responseListClass;
+        this.deleteExistingOnBulkUpdate = deleteExistingOnBulkUpdate;
     }
 
     protected abstract DtoType toDto(RequestType request);
@@ -142,7 +154,7 @@ public abstract class BaseController<
             @RequestParam Map<String, Object> deleteExistingKey
     ) {
         List<DtoType> dtos = requests.stream().map(this::toDto).collect(Collectors.toList());
-        return ApiResponse.ok(toResponse(handler.createOrReplaceBulk(jwtUser.getUserContextId(), dtos, deleteExistingKey)));
+        return ApiResponse.ok(toResponse(handler.createOrReplaceBulk(jwtUser.getUserContextId(), dtos, deleteExistingKey, deleteExistingOnBulkUpdate)));
     }
 
     protected Map<String, String> getOrderBy(Map<String, Object> params) {

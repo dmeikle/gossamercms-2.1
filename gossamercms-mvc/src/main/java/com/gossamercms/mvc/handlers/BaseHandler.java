@@ -101,9 +101,10 @@ public abstract class BaseHandler<
     public ListResultset<DtoType> createOrReplaceBulk(
             UUID deletedBy,
             List<DtoType> dtos,
-            Map<String, Object> deleteExistingKey
+            Map<String, Object> deleteExistingKey,
+            boolean deleteExistingOnBulkUpdate
     ) {
-        return db.createOrReplaceBulk(deletedBy, dtos, deleteExistingKey);
+        return db.createOrReplaceBulk(deletedBy, dtos, deleteExistingKey, deleteExistingOnBulkUpdate);
     }
 
     // ------------------------------------------------------------

@@ -1,4 +1,4 @@
-CREATE TABLE request_logs (
+CREATE TABLE if not exists request_logs (
     "id" UUID PRIMARY KEY,
     "serverKey" UUID,
     "eventKey" VARCHAR(45),
