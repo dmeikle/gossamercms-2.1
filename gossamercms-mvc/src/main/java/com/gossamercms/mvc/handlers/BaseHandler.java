@@ -102,9 +102,9 @@ public abstract class BaseHandler<
             UUID deletedBy,
             List<DtoType> dtos,
             Map<String, Object> deleteExistingKey,
-            boolean deleteExistingOnBulkUpdate
+            boolean updateExistingRows
     ) {
-        return db.createOrReplaceBulk(deletedBy, dtos, deleteExistingKey, deleteExistingOnBulkUpdate);
+        return db.createOrReplaceBulk(deletedBy, dtos, deleteExistingKey, updateExistingRows);
     }
 
     // ------------------------------------------------------------

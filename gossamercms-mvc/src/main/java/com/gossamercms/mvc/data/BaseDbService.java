@@ -391,9 +391,9 @@ public abstract class BaseDbService<
 //          UUID createdBy,
 //          List<DtoType> dtos,
 //          Map<String, Object> deleteExistingKey,
-//          boolean updateExisting) {
+//          boolean updateExistingRows) {
 //
-//      if (!updateExisting) {
+//      if (!updateExistingRows) {
 //          // Your existing implementation:
 //          // 1. Soft-delete existing rows.
 //          // 2. Insert all supplied DTOs.
@@ -473,7 +473,7 @@ public abstract class BaseDbService<
             UUID createdBy,
             List<DtoType> dtos,
             Map<String, Object> deleteExistingKey,
-            boolean updateExisting) {
+            boolean updateExistingRows) {
 
         if (dtos == null) {
             dtos = new ArrayList<>();
@@ -483,7 +483,7 @@ public abstract class BaseDbService<
             deleteExistingKey = new HashMap<>();
         }
 
-        if (updateExisting) {
+        if (updateExistingRows) {
             return this.createOrReplaceBulkUpdate(
                     createdBy, dtos, deleteExistingKey
             );

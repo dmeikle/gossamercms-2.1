@@ -381,7 +381,7 @@ public class PostgresAdapter implements DataSourceAdapter {
     ) {
 
         int page = Math.max(1, options.page());
-        int size = Math.max(1, options.size());
+        int size = options.size() == -1 ? -1 : Math.max(1, options.size());
 
         int offset = (page - 1) * size;
 
@@ -428,7 +428,12 @@ public class PostgresAdapter implements DataSourceAdapter {
         }
 
 
-        sql += " LIMIT :limit OFFSET :offset";
+        if (size != -1) {
+            sql += " LIMIT :limit OFFSET :offset";
+        } else {
+            sql += " OFFSET :offset";
+        }
+
 
 
         Map<String, Object> params =
@@ -441,15 +446,11 @@ public class PostgresAdapter implements DataSourceAdapter {
             }
         }
 
-        params.put(
-                "limit",
-                size
-        );
+        if(size != -1) {
+            params.put("limit", size);
+        }
 
-        params.put(
-                "offset",
-                offset
-        );
+        params.put("offset", offset);
         List<Map<String, Object>> rows = null;
         try {
             rows =
