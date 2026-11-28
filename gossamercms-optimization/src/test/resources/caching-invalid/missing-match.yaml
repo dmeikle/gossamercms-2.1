@@ -1,0 +1,5 @@
+name: broken
+paths:
+  - pattern: /api/broken/**
+    max-age: 1s
+    expire-after-write: 1s

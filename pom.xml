@@ -29,6 +29,7 @@
         <module>gossamercms-firebase</module>
         <module>gossamercms-emails</module>
         <module>gossamercms-geolocation</module>
+        <module>gossamercms-optimization</module>
     </modules>
 
     <properties>

@@ -1,0 +1,6 @@
+name: pages-preview
+match: /api/pages/preview/**
+paths:
+  - pattern: /api/pages/preview/**
+    max-age: 15s
+    expire-after-write: 15s

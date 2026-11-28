@@ -1,0 +1,6 @@
+name: pages
+match: /api/pages/**
+paths:
+  - pattern: /api/pages/**
+    max-age: 5m
+    expire-after-write: 10m

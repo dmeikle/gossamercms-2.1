@@ -1,0 +1,9 @@
+name: events
+match: /api/events/**
+paths:
+  - pattern: /api/events/*/tickets
+    max-age: 10s
+    expire-after-write: 10s
+  - pattern: /api/**
+    max-age: 5s
+    expire-after-write: 5s

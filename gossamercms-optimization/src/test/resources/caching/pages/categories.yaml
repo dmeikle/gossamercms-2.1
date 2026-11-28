@@ -1,0 +1,6 @@
+name: categories
+match: /categories/**
+paths:
+  - pattern: /api/categories/**
+    max-age: 2m
+    expire-after-write: 2m
